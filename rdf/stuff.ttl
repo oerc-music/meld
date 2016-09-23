@@ -1,0 +1,12 @@
+PREFIX oa: <http://www.w3.org/ns/oa#>
+PREFIX meld: <http://meld.linkedmusic.org/annotation/>
+
+<http://meld.linkedmusic.org/rdf/Haydn_Example_1> a oa:Annotation ;
+    oa:hasBody meld:Bg0NBQoOAQ8ICwoBBA0NCQ ;
+    oa:hasBody meld:CwkAAwUODgUJCgsNBAcACQ ;
+    oa:hasBody meld:Bg8BAgQHAwsECggMBAcNDg ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei> .
+
+<http://meld.linkedmusic.org/example/Haydn_StringQuartet_Op1_No1-p1/d594751e451> <http://meld.linkedmusic.org/vocab/partOf> <http://meld.linkedmusic.org/example/reallyInterestingMusicologicalExample> .
+<http://meld.linkedmusic.org/example/Haydn_StringQuartet_Op1_No1-p1/d594751e684> <http://meld.linkedmusic.org/vocab/partOf> <http://meld.linkedmusic.org/example/reallyInterestingMusicologicalExample> .         
+<http://meld.linkedmusic.org/example/Haydn_StringQuartet_Op1_No1-p1/d594751e904> <http://meld.linkedmusic.org/vocab/partOf> <http://meld.linkedmusic.org/example/reallyInterestingMusicologicalExample> .

@@ -1,0 +1,119 @@
+#scorepane { 
+    float: left;
+    width:55%;
+}
+
+#restpane { 
+    float:right;
+    width:45%;
+}
+
+
+#annotations .bbox, #annotations .baseBBox{
+    position:absolute;
+    max-width:500px;
+    padding:5px;
+    font-size: 150%;
+    font-family:sans-serif;
+    z-index: 0;
+    text-align:justify;
+    background:000;
+}
+
+#annotations .bbox.hover { 
+    border: 0.3em dashed black;
+}
+
+#annotations .bbox.highlight, #annotations .bbox.highlightExcludingVerse { 
+    opacity:0.5;
+    box-shadow: 0 6px 6px 0px rgba(0,0,0,0.4);
+}
+
+#annotations .bbox.highlight.hl_1, #controls .hl_1, #analysis .hl_1{ 
+    background:#eff2b9;
+}
+
+#annotations .bbox.highlight.hl_2, #controls .hl_2, #analysis .hl_2{ 
+    background:#f2b9ef;
+}
+
+#analysis { 
+    font-size: 120%;
+}
+
+#analysis a[title] { 
+    cursor: default;
+}
+
+#annotations .bbox.externalRef { 
+    cursor:pointer;
+    border:5px dashed blue;
+}
+
+#thescore .emphasis { 
+    fill:#f00;
+    stroke:#f00;
+}
+
+#restpane { 
+    font-size: 2.5em;
+    height: 100%;
+    overflow-y:auto;
+}
+
+
+#restpane #controls { 
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+#restpane #controls div { 
+    /*display:inline-block;*/
+    padding-top:.2em;
+    padding-bottom:.2em;
+    padding-right:.1em;
+    clear:both;
+    float:left;
+    border:1px solid black;
+
+}
+
+
+
+/* -----dynameld-specific------ */
+
+#next { 
+    cursor:pointer;
+    font-size: 250%;
+    clear:left;
+    padding:10px;
+    right: 300px;
+    position:absolute;
+}
+
+#annotations .jumpfrom { 
+    background:#ff5500;
+    cursor:pointer;
+    background: red; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(left, white, red); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, white, red); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, white, red); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, white , red); /* Standard syntax */
+    border-right:2px solid darkred;
+}
+
+#annotations .jumpto { 
+    background:#00ff00;
+    background: green; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(left, green, white); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, green, white); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, green, white); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, green , white); /* Standard syntax */
+    border-left: 2px solid darkgreen;
+}
+
+#annotations .fadeOut { 
+    opacity: 0;
+    transition: visibility 0s 2s, opacity 2s linear;
+}
+

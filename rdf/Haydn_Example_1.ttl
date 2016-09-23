@@ -1,0 +1,44 @@
+PREFIX rdfs:        <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX cnt:         <http://www.w3.org/2011/content#>
+PREFIX oa:          <http://www.w3.org/ns/oa#>
+PREFIX meld:        <http://meld.linkedmusic.org/annotation/>
+PREFIX meldterm:    <http://meld.linkedmusic.org/terms/>
+
+<http://meld.linkedmusic.org/annotation/Haydn_Example_1> a oa:Annotation, meldterm:topLevel ;
+    oa:hasBody meld:Bg0NBQoOAQ8ICwoBBA0NCQ ,
+               meld:AgDAQQIBg8CCQUIBA0ECg2 ,
+               meld:CgsCCgkGBQ8EBQEIBAAPAg ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei> .
+
+meld:Bg0NBQoOAQ8ICwoBBA0NCQ a oa:Annotation ; 
+    oa:motivatedBy oa:tagging ;
+    oa:hasBody meldterm:emphasis ,
+               [ a oa:Tag, cnt:ContentAsText;
+                 cnt:chars "This is an instance of the very interesting Leitmotif"
+               ] ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei#d594751e213>,
+                 <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei#d594751e451> .
+
+meld:AgDAQQIBg8CCQUIBA0ECg2 a oa:Annotation ;
+    oa:motivatedBy oa:tagging ;
+    oa:hasBody meldterm:highlight, 
+               [ a oa:Tag, cnt:ContentAsText;
+                 cnt:chars "These two measures represent the same melodic phrase"
+               ] ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei#d594751e684> ,
+                 <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei#d594751e1661> .
+ 
+meld:CgsCCgkGBQ8EBQEIBAAPAg a oa:Annotation ;
+    oa:motivatedBy oa:tagging ;
+    oa:hasBody [ a oa:Tag, meldterm:externalRef ;
+                 rdfs:seeAlso <http://dbpedia.org/resource/Joseph_Haydn> 
+               ] ,
+               [ a oa:Tag, cnt:ContentAsText;
+                 cnt:chars "This measure links to the composer's DBPedia entry"
+               ] ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/Haydn_StringQuartet_Op1_No1-p1.mei#d594751e2511> .
+
+
+meldterm:emphasis a oa:SemanticTag .
+meldterm:highlight a oa:SemanticTag .
+meldterm:externalRef a oa:SemanticTag .

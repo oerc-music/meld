@@ -1,0 +1,56 @@
+PREFIX rdfs:        <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+PREFIX cnt:         <http://www.w3.org/2011/content#>
+PREFIX oa:          <http://www.w3.org/ns/oa#>
+PREFIX meld:        <http://meld.linkedmusic.org/annotations/>
+PREFIX meldterm:    <http://meld.linkedmusic.org/terms/>
+PREFIX manifest:        <http://meld.linkedmusic.org/manifestations/>
+PREFIX leitmotif:   <http://meld.linkedmusic.org/leitmotifs/>
+PREFIX meldresource:   <http://meld.linkedmusic.org/resources/>
+PREFIX frbr:        <http://purl.org/vocab/frbr/core#>
+PREFIX fabio:        <http://purl.org/spar/fabio/>
+PREFIX dbp:         <http://dbpedia.org/resource/>
+PREFIX dct:         <http://purl.org/dc/terms/>
+
+<http://127.0.0.1:5000/jams/AQsGCQsLBwoDAQIEBA8NDw> a oa:Annotation, meldterm:topLevel ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/When_Im_64.mei> .
+
+meldterm:Jump a oa:SemanticTag .
+
+<http://meld.linkedmusic.org/mei/When_Im_64.mei> meldterm:hasJumpTarget [ 
+    rdfs:label "Intro" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000140943779> ;
+    meldterm:menuOrder 0
+]  ,
+[
+    rdfs:label "Verse 1" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000186945794> ;
+    meldterm:menuOrder 1 
+] ,
+[
+    rdfs:label "Chorus 1" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000114868358> ; 
+    meldterm:menuOrder 2
+] ,
+[
+    rdfs:label "Verse 2" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000161136992> ;
+    meldterm:menuOrder 3
+] ,
+[
+    rdfs:label "Chorus 2" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000196237136> ;
+    meldterm:menuOrder 4
+],
+[
+    rdfs:label "Verse 3" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000132820916> ;
+    meldterm:menuOrder 5
+],
+[
+    rdfs:label "Outro" ;
+    meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000058105559> ;
+    meldterm:menuOrder 6
+] .
+

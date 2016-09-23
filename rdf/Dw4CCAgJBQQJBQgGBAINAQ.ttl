@@ -1,0 +1,29 @@
+PREFIX rdfs:        <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+PREFIX cnt:         <http://www.w3.org/2011/content#>
+PREFIX oa:          <http://www.w3.org/ns/oa#>
+PREFIX meld:        <http://meld.linkedmusic.org/annotations/>
+PREFIX meldterm:    <http://meld.linkedmusic.org/terms/>
+PREFIX manifest:        <http://meld.linkedmusic.org/manifestations/>
+PREFIX leitmotif:   <http://meld.linkedmusic.org/leitmotifs/>
+PREFIX meldresource:   <http://meld.linkedmusic.org/resources/>
+PREFIX frbr:        <http://purl.org/vocab/frbr/core#>
+PREFIX fabio:        <http://purl.org/spar/fabio/>
+PREFIX dbp:         <http://dbpedia.org/resource/>
+PREFIX dct:         <http://purl.org/dc/terms/>
+
+<http://127.0.0.1:5000/jams/Dw4CCAgJBQQJBQgGBAINAQ> a oa:Annotation, meldterm:topLevel ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/So_What.mei> ;
+    oa:hasBody meld:CgsBDAoMCAgLAwoNBAEAAA .
+
+
+meld:CgsBDAoMCAgLAwoNBAEAAA a oa:Annotation ;
+    oa:hasBody [ 
+                 a meldterm:Jump ;
+                 meldterm:jumpTo <http://meld.linkedmusic.org/mei/So_What.mei#measure-000000051457146> 
+               ] ;
+    oa:hasTarget <http://meld.linkedmusic.org/mei/So_What.mei#measure-000000119870671> .
+
+
+meldterm:Jump a oa:SemanticTag .
