@@ -131,6 +131,8 @@ def jumpTo(uid):
 def createCollection():
 	topLevelTargets = request.form["topLevelTargets"].split("|")
 	topLevelId = uuid()
+	subscriptionId = uuid()
+	subscriptionFile = "{0}/subscription/{1}".format(basedir, subscriptionId)
 	collectionFile = "{0}/collection/{1}".format(basedir, topLevelId)
 	collectionJson = json.loads("""{{
 	"@context": {{ 
@@ -141,6 +143,7 @@ def createCollection():
 		"manifest": "http://meld.linkedmusic.org/manifestations/", 
 		"frbr": "http://purl.org/vocab/frbr/core#", 
 		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#", 
+		"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
 		"oa": "http://www.w3.org/ns/oa#", 
 		"dct": "http://purl.org/dc/terms/", 
 		"meldterm": "http://meld.linkedmusic.org/terms/"
@@ -151,11 +154,13 @@ def createCollection():
 			"meldterm:topLevel",
 			"oa:Annotation"
 		],
+		"meldterm:subscription": ["http://meld.linkedmusic.org/subscription/{1}"],
 		"oa:annotatedAt": [
-			"{1}"
-		]
+			"{2}"
+		],
+		"oa:hasBody": []
 	}}]
-}}""".format(topLevelId, datetime.now().isoformat()))
+}}""".format(topLevelId, subscriptionId, datetime.now().isoformat()))
 	collectionJson["@graph"][0]["oa:hasTarget"] = topLevelTargets
 	with open(collectionFile, 'w') as collection:
 		json.dump(collectionJson, collection, indent=2)
@@ -165,11 +170,25 @@ def createCollection():
 
 @main.route("/collection/<collectionId>", methods=["POST"])
 def appendToCollection(collectionId):
+# TODO:
+# - Authentication
+# - Marking annotations for specific user or all users
+# - Priviledged and unpriviledged access accordingly
+# - sanity-check the incoming annotation
+# - respond with 202 accepted
+# - after that, follow up new annotation in all related annostates
+	annotation = request.get_json()
 	collectionFile = "{0}/collection/{1}".format(basedir, collectionId)
 	if not os.path.isfile(collectionFile):
 		abort(404)
-	# load collection json-ld
-	g = Graph().parse(collectionFile, format="turtle")
+	with open(collectionFile, 'r') as collection:
+		collJson = json.load(collection)
+	collection["oa:annotatedAt"] = [datetime.now().isoformat()]
+	collJson["@graph"][0]["oa:hasBody"].append(annotation)
+	with open(collectionFile, 'w') as collection:
+		collection.write(json.dumps(collJson, indent=2))
+	return make_response("", 202)
+
 
 
 @main.route("/annostate", methods=["POST"])
@@ -184,13 +203,19 @@ def createAnnoState():
 	with open(collectionFile, 'r') as collection:
 		collJson = json.load(collection)
 	# for any non-top-level annotation, indicate that we have yet to action it
-	if "oa:hasBody" in collJson["@graph"][0]:
-		for ix, obj in enumerate(collJson["@graph"][0]["oa:hasBody"]):
-			collJson["@graph"][0]["oa:hasBody"][ix].update({"meldterm:actionRequired": True})
+	for ix, obj in enumerate(collJson["@graph"][0]["oa:hasBody"]):
+		collJson["@graph"][0]["oa:hasBody"][ix].update({"meldterm:actionRequired": True})
 
 	with open(annoStateFile, 'w') as annoState:
 		annoState.write(json.dumps(collJson, indent=2))
-	
+
+	# subscribe this annostate to the collection
+	subscriptionId = collJson["@graph"][0]["meldterm:subscription"][0].rsplit('subscription/', 1)[1]
+	subscriptionFile = "{0}/subscription/{1}".format(basedir, subscriptionId)
+
+	with open(subscriptionFile, 'a') as subscription:
+		subscription.write("http://meld.linkedmusic.org/annostate/{0}\n".format(annoStateId))
+
 	response = make_response("",201)
 	response.headers["Location"] = "/annostate/{0}".format(annoStateId)
 	return response
