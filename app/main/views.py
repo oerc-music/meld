@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, current_app, abort
+from flask import render_template, request, redirect, url_for, current_app, abort, make_response
 from config import basedir
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -114,14 +114,46 @@ def jumpTo(uid):
     newActionId = uuid()
     with open(rdf_file, "a") as jamfile:
         jamfile.write("""
-        <http://127.0.0.1:5000/jams/{0}> oa:hasBody meld:{1} .
+        <http://meld.linkedmusic.org/jams/{0}> oa:hasBody meld:{1} .
         meld:{1} a oa:Annotation ;
             oa:hasBody [
                 a meldterm:Jump ;
                 meldterm:jumpTo <{2}>
             ];
             oa:hasTarget <{3}> .
-            """.format(uid, newActionId, jumpTo, jumpFrom));
+            """.format(uid, newActionId, jumpTo, jumpFrom))
 
     return("", 200);
+
+@main.route("/rooms", methods=["POST"])
+def createRoom():
+	topLevelTargets = ["<" + t + ">" for t in request.form["topLevelTargets"].split("|")]
+	topLevelId = uuid()
+	roomFile = "{0}/room/{1}".format(basedir, topLevelId)
+	with open(roomFile, "a") as room:
+		room.write("""
+PREFIX rdfs:        <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+PREFIX cnt:         <http://www.w3.org/2011/content#>
+PREFIX oa:          <http://www.w3.org/ns/oa#>
+PREFIX meld:        <http://meld.linkedmusic.org/annotations/>
+PREFIX meldterm:    <http://meld.linkedmusic.org/terms/>
+PREFIX manifest:        <http://meld.linkedmusic.org/manifestations/>
+PREFIX leitmotif:   <http://meld.linkedmusic.org/leitmotifs/>
+PREFIX meldresource:   <http://meld.linkedmusic.org/resources/>
+PREFIX frbr:        <http://purl.org/vocab/frbr/core#>
+PREFIX fabio:        <http://purl.org/spar/fabio/>
+PREFIX dbp:         <http://dbpedia.org/resource/>
+PREFIX dct:         <http://purl.org/dc/terms/>
+
+<http://meld.linkedmusic.org/room/{0}> a oa:Annotation, meldterm:topLevel ; 
+		oa:hasTarget {1} . 
+""".format(topLevelId, " , ".join(topLevelTargets)))
+	
+	response = make_response("", 201)
+	response.headers["Location"] = "/room/{0}".format(topLevelId)
+	return response
+
+
 
