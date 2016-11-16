@@ -193,8 +193,8 @@ $(document).ready(function() {
         $("#restpane #analysis").html(htmlData);
     });
     var meiResource = $.get( meiFile, function( meiData ) {
-        var oSerializer = new XMLSerializer();
-        meiData = oSerializer.serializeToString(meiData);
+        //var oSerializer = new XMLSerializer();
+        //meiData = oSerializer.serializeToString(meiData);
         var options = JSON.stringify({
             pageHeight: 5000,
             pageWidth: 2500,

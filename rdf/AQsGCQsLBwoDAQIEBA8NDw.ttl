@@ -13,7 +13,7 @@ PREFIX fabio:        <http://purl.org/spar/fabio/>
 PREFIX dbp:         <http://dbpedia.org/resource/>
 PREFIX dct:         <http://purl.org/dc/terms/>
 
-<http://127.0.0.1:5000/jams/AQsGCQsLBwoDAQIEBA8NDw> a oa:Annotation, meldterm:topLevel ;
+<http://meld.linkedmusic.org/jams/AQsGCQsLBwoDAQIEBA8NDw> a oa:Annotation, meldterm:topLevel ;
     oa:hasTarget <http://meld.linkedmusic.org/mei/When_Im_64.mei> .
 
 meldterm:Jump a oa:SemanticTag .
@@ -53,4 +53,5 @@ meldterm:Jump a oa:SemanticTag .
     meldterm:startsAt <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000058105559> ;
     meldterm:menuOrder 6
 ] .
+
 
