@@ -186,6 +186,8 @@ def appendToCollection(collectionId):
 	with open(collectionFile, 'r') as collection:
 		collJson = json.load(collection)
 	annotation["oa:annotatedAt"] = [datetime.now().isoformat()]
+	annotation["@id"] = ["http://meld.linkedmusic.org/annotation/{0}".format(uuid())]
+	annotation["@type"] = ["oa:Annotation"]
 	collJson["@graph"][0]["oa:hasBody"].append(annotation)
 	with open(collectionFile, 'w') as collection:
 		collection.write(json.dumps(collJson, indent=2))
@@ -237,8 +239,30 @@ def createAnnoState():
 	response.headers["Location"] = "/annostate/{0}".format(annoStateId)
 	return response
 
-@main.route("/annostate/<annoStateId>") 
+@main.route("/annostate/<annoStateId>", methods=["GET"]) 
 def getAnnoState(annoStateId):
 	if not os.path.isfile("{0}/annostate/{1}".format(basedir, annoStateId)):
 		abort(404)
 	return open("{0}/annostate/{1}".format(basedir, annoStateId), "r").read()
+
+@main.route("/annostate/<annoStateId>", methods=["PATCH"])
+def patchAnnoState(annoStateId):
+	if not os.path.isfile("{0}/annostate/{1}".format(basedir, annoStateId)):
+		return make_response("Specified annotation state not found", 404) # annotation state not found
+	if not "annotationId" in request.form or not "actionRequired" in request.form:
+		return make_response("Must supply annotationId and actionRequired flag", 400) # bad request
+	with open("{0}/annostate/{1}".format(basedir, annoStateId), "r") as annoState:
+		annoStateJson = json.load(annoState)
+	# search through list of annotations for index of the annotation whose state we want to change
+	annoIndex = next((ix for ix, anno in enumerate(annoStateJson["@graph"][0]["oa:hasBody"]) if anno["@id"] == request.form["annotationId"]), -1)
+	if annoIndex == -1:
+		return make_response("Specified annotationId not found:{0}".format(request.form["annotationId"]), 404) # annotationId not found
+	# now update the rendering state as requested
+	annoStateJson["@graph"][0]["oa:hasBody"][annoIndex]["meldterm:actionRequired"] = request.form["actionRequired"]
+	# and write the file out 
+	#FIXME RACE CONDITION!
+	with open("{0}/annostate/{1}".format(basedir, annoStateId), "w") as annoState:
+		annoState.write(json.dumps(annoStateJson, indent=2))
+	return make_response("",200)
+		
+ 
