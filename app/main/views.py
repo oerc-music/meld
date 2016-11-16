@@ -125,7 +125,7 @@ def jumpTo(uid):
 
     return("", 200);
 
-@main.route("/rooms", methods=["POST"])
+@main.route("/room", methods=["POST"])
 def createRoom():
 	topLevelTargets = ["<" + t + ">" for t in request.form["topLevelTargets"].split("|")]
 	topLevelId = uuid()
