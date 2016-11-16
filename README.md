@@ -8,7 +8,3 @@ This repository contains the MELD demonstrator.
 
 By default, it will run on localhost port 5000. 
 
-Try visiting: 
-
-* http://localhost:5000/jams/AQsGCQsLBwoDAQIEBA8NDw (DynaMELD / jam session scenario), or 
-* http://localhost:5000/annotations/Wagner_Entsagungsmotiv (musicological scenario)
