@@ -171,25 +171,42 @@ def createCollection():
 @main.route("/collection/<collectionId>", methods=["POST"])
 def appendToCollection(collectionId):
 # TODO:
+#	- worry about race condition
 # - Authentication
+#	-	Validation
 # - Marking annotations for specific user or all users
 # - Priviledged and unpriviledged access accordingly
-# - sanity-check the incoming annotation
-# - respond with 202 accepted
+# - respond with 202 accepted immediately
 # - after that, follow up new annotation in all related annostates
 	annotation = request.get_json()
 	collectionFile = "{0}/collection/{1}".format(basedir, collectionId)
 	if not os.path.isfile(collectionFile):
 		abort(404)
+	#FIXME RACE CONDITION!
 	with open(collectionFile, 'r') as collection:
 		collJson = json.load(collection)
-	collection["oa:annotatedAt"] = [datetime.now().isoformat()]
+	annotation["oa:annotatedAt"] = [datetime.now().isoformat()]
 	collJson["@graph"][0]["oa:hasBody"].append(annotation)
 	with open(collectionFile, 'w') as collection:
 		collection.write(json.dumps(collJson, indent=2))
+	# now update every subscriber
+	subscriptionId = collJson["@graph"][0]["meldterm:subscription"][0].rsplit('subscription/', 1)[1]
+	subscriptionFile = "{0}/subscription/{1}".format(basedir, subscriptionId)
+	with open(subscriptionFile) as subscription:
+		subscribers = subscription.readlines()
+	# initialise annostate for annotation
+	annotation["meldterm:actionRequired"] = True
+	# write out to subscribers
+	for sub in subscribers:
+		annostateId = sub.rsplit('annostate/', 1)[1].replace("\n","")
+		annostateFile = "{0}/annostate/{1}".format(basedir, annostateId)
+		# FIXME RACE CONDITION!
+		with open(annostateFile, 'r') as annostate:
+			annostateJson = json.load(annostate)
+		annostateJson["@graph"][0]["oa:hasBody"].append(annotation)
+		with open(annostateFile, 'w') as annostate:
+			annostate.write(json.dumps(annostateJson, indent=2))
 	return make_response("", 202)
-
-
 
 @main.route("/annostate", methods=["POST"])
 def createAnnoState():
