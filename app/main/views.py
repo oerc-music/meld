@@ -8,8 +8,10 @@ from rdflib import Graph, plugin, URIRef, Literal
 from rdflib.parser import Parser
 from rdflib.serializer import Serializer
 import os
+import shutil
 import re
 from shortuuid import uuid
+from datetime import datetime
 
 from . import main
 
@@ -125,35 +127,76 @@ def jumpTo(uid):
 
     return("", 200);
 
-@main.route("/room", methods=["POST"])
-def createRoom():
-	topLevelTargets = ["<" + t + ">" for t in request.form["topLevelTargets"].split("|")]
+@main.route("/collection", methods=["POST"])
+def createCollection():
+	topLevelTargets = request.form["topLevelTargets"].split("|")
 	topLevelId = uuid()
-	roomFile = "{0}/room/{1}".format(basedir, topLevelId)
-	with open(roomFile, "a") as room:
-		room.write("""
-PREFIX rdfs:        <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX owl:        <http://www.w3.org/2002/07/owl#>
-PREFIX cnt:         <http://www.w3.org/2011/content#>
-PREFIX oa:          <http://www.w3.org/ns/oa#>
-PREFIX meld:        <http://meld.linkedmusic.org/annotations/>
-PREFIX meldterm:    <http://meld.linkedmusic.org/terms/>
-PREFIX manifest:        <http://meld.linkedmusic.org/manifestations/>
-PREFIX leitmotif:   <http://meld.linkedmusic.org/leitmotifs/>
-PREFIX meldresource:   <http://meld.linkedmusic.org/resources/>
-PREFIX frbr:        <http://purl.org/vocab/frbr/core#>
-PREFIX fabio:        <http://purl.org/spar/fabio/>
-PREFIX dbp:         <http://dbpedia.org/resource/>
-PREFIX dct:         <http://purl.org/dc/terms/>
-
-<http://meld.linkedmusic.org/room/{0}> a oa:Annotation, meldterm:topLevel ; 
-		oa:hasTarget {1} . 
-""".format(topLevelId, " , ".join(topLevelTargets)))
-	
+	collectionFile = "{0}/collection/{1}".format(basedir, topLevelId)
+	collectionJson = json.loads("""{{
+	"@context": {{ 
+		"cnt": "http://www.w3.org/2011/content#", 
+		"rdfs": "http://www.w3.org/2000/01/rdf-schema#", 
+		"fabio": "http://purl.org/spar/fabio/", 
+		"leitmotif": "http://meld.linkedmusic.org/leitmotif/", 
+		"manifest": "http://meld.linkedmusic.org/manifestations/", 
+		"frbr": "http://purl.org/vocab/frbr/core#", 
+		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#", 
+		"oa": "http://www.w3.org/ns/oa#", 
+		"dct": "http://purl.org/dc/terms/", 
+		"meldterm": "http://meld.linkedmusic.org/terms/"
+	}},
+	"@graph": [{{
+		"@id": "http://meld.linkedmusic.org/collection/{0}",
+		"@type": [
+			"meldterm:topLevel",
+			"oa:Annotation"
+		],
+		"oa:annotatedAt": [
+			"{1}"
+		]
+	}}]
+}}""".format(topLevelId, datetime.now().isoformat()))
+	collectionJson["@graph"][0]["oa:hasTarget"] = topLevelTargets
+	with open(collectionFile, 'w') as collection:
+		json.dump(collectionJson, collection, indent=2)
 	response = make_response("", 201)
-	response.headers["Location"] = "/room/{0}".format(topLevelId)
+	response.headers["Location"] = "/collection/{0}".format(topLevelId)
 	return response
 
+@main.route("/collection/<collectionId>", methods=["POST"])
+def appendToCollection(collectionId):
+	collectionFile = "{0}/collection/{1}".format(basedir, collectionId)
+	if not os.path.isfile(collectionFile):
+		abort(404)
+	# load collection json-ld
+	g = Graph().parse(collectionFile, format="turtle")
 
 
+@main.route("/annostate", methods=["POST"])
+def createAnnoState():
+	collectionUri = request.form["collection"].rsplit('collection/', 1)
+	if len(collectionUri) != 2 or not os.path.isfile("{0}/collection/{1}".format(basedir, collectionUri[1])):
+		return make_response("Specified collection does not exist", 404)
+	annoStateId = uuid()
+	# create a fresh annostate view of the collection
+	collectionFile = "{0}/collection/{1}".format(basedir, collectionUri[1])
+	annoStateFile = "{0}/annostate/{1}".format(basedir, annoStateId)
+	with open(collectionFile, 'r') as collection:
+		collJson = json.load(collection)
+	# for any non-top-level annotation, indicate that we have yet to action it
+	if "oa:hasBody" in collJson["@graph"][0]:
+		for ix, obj in enumerate(collJson["@graph"][0]["oa:hasBody"]):
+			collJson["@graph"][0]["oa:hasBody"][ix].update({"meldterm:actionRequired": True})
+
+	with open(annoStateFile, 'w') as annoState:
+		annoState.write(json.dumps(collJson, indent=2))
+	
+	response = make_response("",201)
+	response.headers["Location"] = "/annostate/{0}".format(annoStateId)
+	return response
+
+@main.route("/annostate/<annoStateId>") 
+def getAnnoState(annoStateId):
+	if not os.path.isfile("{0}/annostate/{1}".format(basedir, annoStateId)):
+		abort(404)
+	return open("{0}/annostate/{1}".format(basedir, annoStateId), "r").read()
