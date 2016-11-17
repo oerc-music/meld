@@ -185,9 +185,9 @@ def appendToCollection(collectionId):
 	#FIXME RACE CONDITION!
 	with open(collectionFile, 'r') as collection:
 		collJson = json.load(collection)
-	annotation["oa:annotatedAt"] = [datetime.now().isoformat()]
-	annotation["@id"] = ["http://meld.linkedmusic.org/annotation/{0}".format(uuid())]
-	annotation["@type"] = ["oa:Annotation"]
+	appendOrSet(annotation, "oa:annotatedAt", datetime.now().isoformat())
+	appendOrSet(annotation, "@id", "http://meld.linkedmusic.org/annotation/{0}".format(uuid()))
+	appendOrSet(annotation, "@type", "oa:Annotation")
 	collJson["@graph"][0]["oa:hasBody"].append(annotation)
 	with open(collectionFile, 'w') as collection:
 		collection.write(json.dumps(collJson, indent=2))
@@ -209,6 +209,16 @@ def appendToCollection(collectionId):
 		with open(annostateFile, 'w') as annostate:
 			annostate.write(json.dumps(annostateJson, indent=2))
 	return make_response("", 202)
+
+def appendOrSet(anno, annokey, annovalue):
+	# helper function: be flexible and allow user to provide their own annovalue for annokey
+	if annokey in anno:
+		if type(anno[annokey]) is list:
+			anno[annokey].append(annovalue)
+		else:
+			anno[annokey] = [anno[annokey], annovalue]
+	else:
+		anno[annokey] = [annovalue]
 
 @main.route("/annostate", methods=["POST"])
 def createAnnoState():
@@ -240,6 +250,9 @@ def createAnnoState():
 	return response
 
 @main.route("/annostate/<annoStateId>", methods=["GET"]) 
+# this will be polled repeatedly by clients
+# provided here for convenience, but ideally handled by a fast static-file http server 
+# (e.g. NGINX using limit_except GET)
 def getAnnoState(annoStateId):
 	if not os.path.isfile("{0}/annostate/{1}".format(basedir, annoStateId)):
 		abort(404)
@@ -254,7 +267,7 @@ def patchAnnoState(annoStateId):
 	with open("{0}/annostate/{1}".format(basedir, annoStateId), "r") as annoState:
 		annoStateJson = json.load(annoState)
 	# search through list of annotations for index of the annotation whose state we want to change
-	annoIndex = next((ix for ix, anno in enumerate(annoStateJson["@graph"][0]["oa:hasBody"]) if anno["@id"] == request.form["annotationId"]), -1)
+	annoIndex = next((ix for ix, anno in enumerate(annoStateJson["@graph"][0]["oa:hasBody"]) if request.form["annotationId"] in anno["@id"]), -1)
 	if annoIndex == -1:
 		return make_response("Specified annotationId not found:{0}".format(request.form["annotationId"]), 404) # annotationId not found
 	# now update the rendering state as requested
