@@ -259,6 +259,7 @@ def getAnnoState(annoStateId):
 	return open("{0}/annostate/{1}".format(basedir, annoStateId), "r").read()
 
 @main.route("/viewer", methods=["GET"])
+def getViewer():
     if request.args.get('annostate') is None:
         abort(400)
     return render_template("viewer", annostate=annostate)
