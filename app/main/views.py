@@ -264,7 +264,7 @@ def getAnnoState(annoStateId):
 def getViewer():
     if request.args.get('annostate') is None:
         abort(400)
-    return render_template("muzimeld.html", annostate=request.args.get('annostate'))
+    return render_template("viewer.html", annostate=request.args.get('annostate'))
 
 @main.route("/annostate/<annoStateId>", methods=["PATCH"])
 def patchAnnoState(annoStateId):
