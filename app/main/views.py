@@ -258,6 +258,11 @@ def getAnnoState(annoStateId):
 		abort(404)
 	return open("{0}/annostate/{1}".format(basedir, annoStateId), "r").read()
 
+@main.route("/viewer", methods=["GET"])
+    if request.args.get('annostate') is None:
+        abort(400)
+    return render_template("viewer", annostate=annostate)
+
 @main.route("/annostate/<annoStateId>", methods=["PATCH"])
 def patchAnnoState(annoStateId):
 	if not os.path.isfile("{0}/annostate/{1}".format(basedir, annoStateId)):
