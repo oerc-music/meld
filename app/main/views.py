@@ -158,10 +158,12 @@ def createCollection():
 		"oa:annotatedAt": [
 			"{2}"
 		],
-		"oa:hasBody": []
+		"oa:hasBody": [],
+		"oa:hasTarget": []
 	}}]
 }}""".format(topLevelId, subscriptionId, datetime.now().isoformat()))
-	collectionJson["@graph"][0]["oa:hasTarget"] = topLevelTargets
+	
+	[collectionJson["@graph"][0]["oa:hasTarget"].append({"@id":target}) for target in topLevelTargets]
 	with open(collectionFile, 'w') as collection:
 		json.dump(collectionJson, collection, indent=2)
 	response = make_response("", 201)
@@ -262,7 +264,7 @@ def getAnnoState(annoStateId):
 def getViewer():
     if request.args.get('annostate') is None:
         abort(400)
-    return render_template("viewer", annostate=annostate)
+    return render_template("muzimeld.html", annostate=request.args.get('annostate'))
 
 @main.route("/annostate/<annoStateId>", methods=["PATCH"])
 def patchAnnoState(annoStateId):
