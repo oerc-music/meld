@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='contextMenu.css') }}">
 </head>
 <body>
-    <script> var annostate = {{ annostate | safe}} </script>
+    <script> 
+			var annostate = "{{ annostate | safe}}";
+		</script>
     <div id="scorepane">
         <div id="annotations"></div>
         <div id="thescore"></div>

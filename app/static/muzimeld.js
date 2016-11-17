@@ -12,6 +12,7 @@ var composerUri;
 var composerName;
 var songList = [];
 
+
 function preInitBoundingBoxes() { 
     // draw a basic (lowest-level-above-score) bounding box for every measure
     // to carry the contextual menu
@@ -276,13 +277,13 @@ function actionLogged(actionid) {
 }
 
 function refresh() { 
-    var rdfFile = annotationGraph["@graph"][0]["@id"];
-    $.getJSON(rdfFile, function(graph) { 
-        annotationGraph = graph;
-    }).done(function() { 
+    var rdfFile = annostate;
+    $.getJSON(rdfFile).done(function(graph) { 
+				annotationGraph = graph;
         // if we are separating by voice, request the corresponding voice num
         //TODO make this bit more semantic; shouldn't be hacking the window URI...
         var meiFile = annotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"];
+				console.log(annotationGraph["@graph"][0]["oa:hasTarget"]);
         var pageUri= window.location.pathname;
         var voice = parseInt(pageUri.substr(pageUri.lastIndexOf('/')+1));
         $.get(meiFile, function(meiData) { 
@@ -358,15 +359,14 @@ function generateMenu() {
 
 $(document).ready(function() { 
     var options = JSON.stringify({
-        pageHeight:1200,
-        pageWidth: 2000,
         ignoreLayout: 1,
         adjustPageHeight: 1
     });
     vrvToolkit.setOptions(options);
     currentPage = 1;
     //grabExternalData(); // also triggers initial refresh call
-    $.getJSON(annostate, function(graph) { 
-        console.log(graph);
-    }
+		$.getJSON(annostate).done(function(graph) { 
+			annotationGraph = graph; 
+			refresh() 
+		}); 
 });
