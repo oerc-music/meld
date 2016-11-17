@@ -1,10 +1,10 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
+baseuri = os.environ.get('MELD_BASE_URI') or 'http://meld.linkedmusic.org'
 
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'iRphLMnnl2kiOHb1EEEl5blL74'
-
     @staticmethod
     def init_app(app):
         pass
@@ -23,6 +23,6 @@ config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
-    'default': DevelopmentConfig
+    'default': ProductionConfig
 }
 

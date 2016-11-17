@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, current_app, abort, make_response
-from config import basedir
+from config import basedir, baseuri
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pyld import jsonld
@@ -116,14 +116,14 @@ def jumpTo(uid):
     newActionId = uuid()
     with open(rdf_file, "a") as jamfile:
         jamfile.write("""
-        <http://meld.linkedmusic.org/jams/{0}> oa:hasBody meld:{1} .
+        <{0}jams/{1}> oa:hasBody meld:{2} .
         meld:{1} a oa:Annotation ;
             oa:hasBody [
                 a meldterm:Jump ;
-                meldterm:jumpTo <{2}>
+                meldterm:jumpTo <{3}>
             ];
-            oa:hasTarget <{3}> .
-            """.format(uid, newActionId, jumpTo, jumpFrom))
+            oa:hasTarget <{4}> .
+            """.format(baseuri, newActionId, jumpTo, jumpFrom))
 
     return("", 200);
 
@@ -149,19 +149,19 @@ def createCollection():
 		"meldterm": "http://meld.linkedmusic.org/terms/"
 	}},
 	"@graph": [{{
-		"@id": "http://meld.linkedmusic.org/collection/{0}",
+		"@id": "{0}/collection/{1}",
 		"@type": [
 			"meldterm:topLevel",
 			"oa:Annotation"
 		],
-		"meldterm:subscription": ["http://meld.linkedmusic.org/subscription/{1}"],
+		"meldterm:subscription": ["{0}/subscription/{2}"],
 		"oa:annotatedAt": [
-			"{2}"
+			"{3}"
 		],
 		"oa:hasBody": [],
 		"oa:hasTarget": []
 	}}]
-}}""".format(topLevelId, subscriptionId, datetime.now().isoformat()))
+}}""".format(basedir, topLevelId, subscriptionId, datetime.now().isoformat()))
 	
 	[collectionJson["@graph"][0]["oa:hasTarget"].append({"@id":target}) for target in topLevelTargets]
 	with open(collectionFile, 'w') as collection:
@@ -188,7 +188,7 @@ def appendToCollection(collectionId):
 	with open(collectionFile, 'r') as collection:
 		collJson = json.load(collection)
 	appendOrSet(annotation, "oa:annotatedAt", datetime.now().isoformat())
-	appendOrSet(annotation, "@id", "http://meld.linkedmusic.org/annotation/{0}".format(uuid()))
+	appendOrSet(annotation, "@id", "{0}/annotation/{1}".format(basedir, uuid()))
 	appendOrSet(annotation, "@type", "oa:Annotation")
 	collJson["@graph"][0]["oa:hasBody"].append(annotation)
 	with open(collectionFile, 'w') as collection:
@@ -245,7 +245,7 @@ def createAnnoState():
 	subscriptionFile = "{0}/subscription/{1}".format(basedir, subscriptionId)
 
 	with open(subscriptionFile, 'a') as subscription:
-		subscription.write("http://meld.linkedmusic.org/annostate/{0}\n".format(annoStateId))
+		subscription.write("{0}/annostate/{1}\n".format(basedir, annoStateId))
 
 	response = make_response("",201)
 	response.headers["Location"] = "/annostate/{0}".format(annoStateId)
