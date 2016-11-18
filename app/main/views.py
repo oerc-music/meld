@@ -187,8 +187,8 @@ def appendToCollection(collectionId):
 	#FIXME RACE CONDITION!
 	with open(collectionFile, 'r') as collection:
 		collJson = json.load(collection)
-	appendOrSet(annotation, "oa:annotatedAt", datetime.now().isoformat())
-	appendOrSet(annotation, "@id", "{0}/annotation/{1}".format(basedir, uuid()))
+	annotation["@id"] = "{0}/annotation/{1}".format(baseuri, uuid())
+	annotation["oa:annotatedAt"] = datetime.now().isoformat()
 	appendOrSet(annotation, "@type", "oa:Annotation")
 	collJson["@graph"][0]["oa:hasBody"].append(annotation)
 	with open(collectionFile, 'w') as collection:

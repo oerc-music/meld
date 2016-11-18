@@ -111,15 +111,28 @@ function initBoundingBox(target, actionid, exclude) {
     
 }
 
-function applyActions(actions, target, actionid) {
-    console.log("Applying actions", actions, target, actionid);
+function applyActions(actions, target, actionid, annotationid) {
+    console.log("Applying actions", actions, target, actionid, annotationid);
     for (var a=0; a<actions.length; a++) { 
-          if(actions[a]["@type"] === "meldterm:Jump") { 
-              console.log(target["@id"]);
-              initBoundingBox(target, actionid);
-              initBoundingBox(actions[a]["meldterm:jumpTo"][0], actionid);
-              applyJump(target, actions[a]["meldterm:jumpTo"][0], actionid);
-          }
+			console.log(actions[a]);
+				if(Array.isArray(actions[a]["@type"])) {
+						// composite annotations
+						alert("ping!");
+						if (actions[a]["@type"] === "meldterm:CreateNextCollection") { 
+								applyCreateNextCollection(target, actions[a]["resourcesToQueue"], actions[a]["annotationsToQueue"], annotationid);
+						} else if (actions[a]["@type"] === "meldterm:QueueAnnoState") { 
+								applyQueueAnnoState(target, actions[a]["annoStateToQueue"], annotationid);
+						}
+
+				} else { 
+					// simple annotations
+						if(actions[a]["@type"] === "meldterm:Jump") { 
+								console.log(target["@id"]);
+								initBoundingBox(target, actionid);
+								initBoundingBox(actions[a]["meldterm:jumpTo"][0], actionid);
+								applyJump(target, actions[a]["meldterm:jumpTo"][0], actionid);
+						}
+				}
     }
 }
 
@@ -141,6 +154,30 @@ function applyHTMLActions(actions, target, actionid) {
                                   );
         }
     }
+}
+
+function applyCreateNextCollection(target, resources, annotations, annotationid) { 
+		// 0. PATCH to  this annostate with this annotationid to say it's handled
+		alert("FOUND IT");
+		$.ajax({
+			type: "PATCH", 
+			url: target,
+			data: JSON.stringify({"annotationId": annotationid, "actionRequired": false})
+		}).done(
+			function() { alert("Done!") }
+			//data: JSON.stringify({"oa:hasTarget": resources, "oa:hasBody" annotations, "annotationid": annotationid});
+			//console.log("DONE!!");
+		);
+			
+		// 1. POST to /collection factory, specifying target resources and initial annotations
+		// 2. POST to /annostate factory using the collection uri obtained in (1.)
+		// 3. POST a QueuedAnnoState annotation to the current collection
+		// 4. If anything has failed PATCH /annostate back again
+}
+
+function applyQueueAnnoState(target, annostate, annotationid) { 
+		// 1. load annostate into nextAnnoState variable in memory
+		// 2. PATCH to /annostate with this annotationid to say it's handled
 }
 
 function applyEmphasis(target, actionid) { 
@@ -262,7 +299,7 @@ function processRdf() {
             var annotationTargets = annotations[a]["oa:hasTarget"];
             // apply actions encoded by the bodies to each target
             for (var t=0; t<annotationTargets.length; t++) { 
-                applyActions(annotationBodies, annotationTargets[t], actionid);
+                applyActions(annotationBodies, annotationTargets[t], actionid, annotations[a]["@id"]);
             }
         }
     }
@@ -360,7 +397,8 @@ function generateMenu() {
 $(document).ready(function() { 
     var options = JSON.stringify({
         ignoreLayout: 1,
-        adjustPageHeight: 1
+        adjustPageHeight: 1,
+				scale:50
     });
     vrvToolkit.setOptions(options);
     currentPage = 1;
