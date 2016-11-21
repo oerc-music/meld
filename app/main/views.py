@@ -161,13 +161,13 @@ def createCollection():
 		"oa:hasBody": [],
 		"oa:hasTarget": []
 	}}]
-}}""".format(basedir, topLevelId, subscriptionId, datetime.now().isoformat()))
+}}""".format(baseuri, topLevelId, subscriptionId, datetime.now().isoformat()))
 	
 	[collectionJson["@graph"][0]["oa:hasTarget"].append({"@id":target}) for target in topLevelTargets]
 	with open(collectionFile, 'w') as collection:
 		json.dump(collectionJson, collection, indent=2)
-	response = make_response("", 201)
-	response.headers["Location"] = "/collection/{0}".format(topLevelId)
+	response = make_response("",201)
+	response.headers.add("Location", baseuri + "/collection/{0}".format(topLevelId))
 	return response
 
 @main.route("/collection/<collectionId>", methods=["POST"])
@@ -248,7 +248,7 @@ def createAnnoState():
 		subscription.write("{0}/annostate/{1}\n".format(basedir, annoStateId))
 
 	response = make_response("",201)
-	response.headers["Location"] = "/annostate/{0}".format(annoStateId)
+	response.headers.add("Location", "/annostate/{0}".format(annoStateId))
 	return response
 
 @main.route("/annostate/<annoStateId>", methods=["GET"]) 
@@ -264,7 +264,7 @@ def getAnnoState(annoStateId):
 def getViewer():
     if request.args.get('annostate') is None:
         abort(400)
-    return render_template("viewer.html", annostate=request.args.get('annostate'))
+    return render_template("viewer.html", annostate=request.args.get('annostate'), baseuri=baseuri)
 
 @main.route("/annostate/<annoStateId>", methods=["PATCH"])
 def patchAnnoState(annoStateId):
