@@ -462,6 +462,17 @@ $(document).ready(function() {
     //grabExternalData(); // also triggers initial refresh call
     $.getJSON(annostate).done(function(graph) { 
         annotationGraph = graph; 
-        refresh() 
+        // tell muzicodes we've loaded a new piece
+        $.post(
+            muzicodesuri + "/input",
+            $.param({
+                "name": "meld.load",
+                "meldcollection":annotationGraph["@graph"][0]["@id"],
+                "meldannostate":annostate,
+                "meldmei": annotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"]
+            })
+        );
+        // and start the polling loop for this annostate
+        refresh() ;
     }); 
 });

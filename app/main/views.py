@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, current_app, abort, make_response
-from config import basedir, baseuri, meibaseuri
+from config import basedir, baseuri, meibaseuri, muzicodesuri
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pyld import jsonld
@@ -267,7 +267,7 @@ def getAnnoState(annoStateId):
 def getViewer():
     if request.args.get('annostate') is None:
         abort(400)
-    return render_template("viewer.html", annostate=request.args.get('annostate'), baseuri=baseuri)
+    return render_template("viewer.html", annostate=request.args.get('annostate'), baseuri=baseuri, muzicodesuri = muzicodesuri)
 
 @main.route("/annostate/<annoStateId>", methods=["PATCH"])
 def patchAnnoState(annoStateId):
@@ -293,3 +293,10 @@ def patchAnnoState(annoStateId):
 def startTheClimb():
     # special route to start a new session of Maria Kallionpaa's gamified piano composition
     return render_template("startTheClimb.html", meibaseuri=meibaseuri)
+
+@main.route("/muzicodes/input", methods=["POST"])
+def muzicodesDebug():
+    # debug method for muzicodes calls -- these will actually be handled by the muzicodes server
+    print "GOT MUZICODES CALL:"
+    pprint(request.form)
+    return make_response("", 200)

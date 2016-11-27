@@ -1,10 +1,11 @@
+var startMei = "/The_Climb.mei"
+
 function startTheClimb() { 
     // POST to create new collection
     $.post(
         "/collection",
         $.param({
-            "topLevelTargets": meibaseuri + "/The_Climb.mei", 
-            "initialAnnotations": []
+            "topLevelTargets": meibaseuri + startMei
         })
     ).done(function(data, textStatus, xhr) { 
         // POST to collection's createAnnoStateUri
