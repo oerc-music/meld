@@ -1,6 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 baseuri = os.environ.get('MELD_BASE_URI') or 'http://meld.linkedmusic.org'
+meibaseuri = os.environ.get('MELD_MEI_URI') or 'http://meld.linkedmusic.org/mei'
 
 
 class Config:

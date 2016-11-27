@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, current_app, abort, make_response
-from config import basedir, baseuri
+from config import basedir, baseuri, meibaseuri
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pyld import jsonld
@@ -155,6 +155,7 @@ def createCollection():
 			"oa:Annotation"
 		],
 		"meldterm:subscription": ["{0}/subscription/{2}"],
+                "meldterm:createAnnoState": "{0}/collection/{1}/createAnnoState",
 		"oa:annotatedAt": [
 			"{3}"
 		],
@@ -166,8 +167,38 @@ def createCollection():
 	[collectionJson["@graph"][0]["oa:hasTarget"].append({"@id":target}) for target in topLevelTargets]
 	with open(collectionFile, 'w') as collection:
 		json.dump(collectionJson, collection, indent=2)
-	response = make_response("",201)
+	response = make_response('<html><head><link rel="monitor" href="{0}/collection/{1}/createAnnoState"></head></html>'.format(baseuri, topLevelId),201)
 	response.headers.add("Location", baseuri + "/collection/{0}".format(topLevelId))
+        print "Returning new collection at: {0}".format(baseuri + "/collection/" + topLevelId)
+	return response
+
+@main.route("/collection/<collectionId>/createAnnoState", methods=["POST"])
+def createAnnoState(collectionId):
+	if not os.path.isfile("{0}/collection/{1}".format(basedir, collectionId)):
+		return make_response("Specified collection does not exist", 404)
+	annoStateId = uuid()
+	# create a fresh annostate view of the collection
+	collectionFile = "{0}/collection/{1}".format(basedir, collectionId)
+	annoStateFile = "{0}/annostate/{1}".format(basedir, annoStateId)
+	with open(collectionFile, 'r') as collection:
+		collJson = json.load(collection)
+	# for any non-top-level annotation, indicate that we have yet to action it
+	for ix, obj in enumerate(collJson["@graph"][0]["oa:hasBody"]):
+		collJson["@graph"][0]["oa:hasBody"][ix].update({"meldterm:actionRequired": True})
+
+	with open(annoStateFile, 'w') as annoState:
+		annoState.write(json.dumps(collJson, indent=2))
+
+	# subscribe this annostate to the collection
+	subscriptionId = collJson["@graph"][0]["meldterm:subscription"][0].rsplit('subscription/', 1)[1]
+	subscriptionFile = "{0}/subscription/{1}".format(basedir, subscriptionId)
+
+	with open(subscriptionFile, 'a') as subscription:
+		subscription.write("{0}/annostate/{1}\n".format(basedir, annoStateId))
+
+	response = make_response("",201)
+	response.headers.add("Location", "/annostate/{0}".format(annoStateId))
+        print "Creating new annostate for collection {0} at: /annostate/{1}".format(collectionId, annoStateId)
 	return response
 
 @main.route("/collection/<collectionId>", methods=["POST"])
@@ -180,7 +211,7 @@ def appendToCollection(collectionId):
 # - Priviledged and unpriviledged access accordingly
 # - respond with 202 accepted immediately
 # - after that, follow up new annotation in all related annostates
-	annotation = request.get_json()
+        annotation = request.get_json(force=True)
 	collectionFile = "{0}/collection/{1}".format(basedir, collectionId)
 	if not os.path.isfile(collectionFile):
 		abort(404)
@@ -222,34 +253,6 @@ def appendOrSet(anno, annokey, annovalue):
 	else:
 		anno[annokey] = [annovalue]
 
-@main.route("/annostate", methods=["POST"])
-def createAnnoState():
-	collectionUri = request.form["collection"].rsplit('collection/', 1)
-	if len(collectionUri) != 2 or not os.path.isfile("{0}/collection/{1}".format(basedir, collectionUri[1])):
-		return make_response("Specified collection does not exist", 404)
-	annoStateId = uuid()
-	# create a fresh annostate view of the collection
-	collectionFile = "{0}/collection/{1}".format(basedir, collectionUri[1])
-	annoStateFile = "{0}/annostate/{1}".format(basedir, annoStateId)
-	with open(collectionFile, 'r') as collection:
-		collJson = json.load(collection)
-	# for any non-top-level annotation, indicate that we have yet to action it
-	for ix, obj in enumerate(collJson["@graph"][0]["oa:hasBody"]):
-		collJson["@graph"][0]["oa:hasBody"][ix].update({"meldterm:actionRequired": True})
-
-	with open(annoStateFile, 'w') as annoState:
-		annoState.write(json.dumps(collJson, indent=2))
-
-	# subscribe this annostate to the collection
-	subscriptionId = collJson["@graph"][0]["meldterm:subscription"][0].rsplit('subscription/', 1)[1]
-	subscriptionFile = "{0}/subscription/{1}".format(basedir, subscriptionId)
-
-	with open(subscriptionFile, 'a') as subscription:
-		subscription.write("{0}/annostate/{1}\n".format(basedir, annoStateId))
-
-	response = make_response("",201)
-	response.headers.add("Location", "/annostate/{0}".format(annoStateId))
-	return response
 
 @main.route("/annostate/<annoStateId>", methods=["GET"]) 
 # this will be polled repeatedly by clients
@@ -286,4 +289,7 @@ def patchAnnoState(annoStateId):
 		annoState.write(json.dumps(annoStateJson, indent=2))
 	return make_response("",200)
 		
- 
+@main.route("/startTheClimb", methods=["GET"])
+def startTheClimb():
+    # special route to start a new session of Maria Kallionpaa's gamified piano composition
+    return render_template("startTheClimb.html", meibaseuri=meibaseuri)

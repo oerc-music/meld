@@ -1,0 +1,12 @@
+<html>
+<head>
+    <title>Start a new game</title>
+    <script src="{{ url_for('static', filename='jquery-2.1.3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='startTheClimb.js') }}"></script>
+</head>
+<body>
+    <script> baseuri = "{{baseuri | safe}}"</script>
+    <script> meibaseuri = "{{meibaseuri | safe}}"</script>
+    <button type="button" onclick="startTheClimb()">Start new game</button>
+</body>
+</html>

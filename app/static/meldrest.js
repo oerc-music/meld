@@ -162,25 +162,28 @@ function applyCreateNextCollection(target, resources, initAnnotations, annotatio
 			data: $.param({"annotationId": annotationid, "actionRequired": "false"})
 	}).done( function() { 
 	// 1. POST to /collection factory, specifying target resources and initial annotations
+        console.log("POSTING to collection")
 		$.post(
 			"/collection", 
 			$.param({"topLevelTargets": resources.join("|"), "initialAnnotations": initAnnotations})
 		).done(function(data, textStatus, xhr) { 
-// 2. POST to /annostate factory using the collection uri obtained in (1.)
+// 2. POST to the collection's createAnnoStateUri
+            createAnnoStateUri = $.parseHTML(data)[0].getAttribute("href");
+            console.log("POSTING to createAnnoStateUri: ", createAnnoStateUri);
 			$.post(
-				"/annostate",
-				$.param({"collection": xhr.getResponseHeader("Location")})
+                createAnnoStateUri
+//				$.param({"collection": xhr.getResponseHeader("Location")})
 			).done(function(data, textStatus, xhr) { 
 // 3. POST a QueueAnnoState annotation to the current collection
 				console.log("Posting to ", annotationGraph["@graph"][0]["@id"]);
 				$.post(
 					annotationGraph["@graph"][0]["@id"],
-					JSON.stringify({
+                    JSON.stringify({
 						"oa:hasTarget":[target], 
-						"oa:hasBody":{
+						"oa:hasBody":[{
 							"@type":"meldterm:QueueAnnoState",
 							"annoStateToQueue": [xhr.getResponseHeader("Location")]
-						}
+						}]
 					})
 				)
 			})
@@ -193,6 +196,7 @@ function applyCreateNextCollection(target, resources, initAnnotations, annotatio
 function applyQueueAnnoState(target, annostate, annotationid) { 
 	// 1. load annostate into nextAnnoState variable in memory
 	// 2. PATCH to /annostate with this annotationid to say it's handled
+    alert("QUEUE ANNO STATE");
 }
 
 function applyEmphasis(target, actionid) { 
@@ -360,7 +364,7 @@ function refresh() {
 				scorePageMei = meiData;
 				}).done(function() { 
 					drawPage();
-					setTimeout(refresh, 50000);
+					setTimeout(refresh, 5000);
 					});
 	}); 
 
