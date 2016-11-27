@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, current_app, abort, make_response
-from config import basedir, baseuri, meibaseuri, muzicodesuri
+from config import basedir, baseuri, meibaseuri, muzicodesuri, basecamp_mei_file
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pyld import jsonld
@@ -292,7 +292,7 @@ def patchAnnoState(annoStateId):
 @main.route("/startTheClimb", methods=["GET"])
 def startTheClimb():
     # special route to start a new session of Maria Kallionpaa's gamified piano composition
-    return render_template("startTheClimb.html", meibaseuri=meibaseuri)
+    return render_template("startTheClimb.html", meibaseuri=meibaseuri, basecamp_mei_file=basecamp_mei_file)
 
 @main.route("/muzicodes/input", methods=["POST"])
 def muzicodesDebug():

@@ -1,11 +1,9 @@
-var startMei = "/The_Climb.mei"
-
 function startTheClimb() { 
     // POST to create new collection
     $.post(
         "/collection",
         $.param({
-            "topLevelTargets": meibaseuri + startMei
+            "topLevelTargets": basecamp_mei_file
         })
     ).done(function(data, textStatus, xhr) { 
         // POST to collection's createAnnoStateUri

@@ -5,8 +5,11 @@
     <script src="{{ url_for('static', filename='startTheClimb.js') }}"></script>
 </head>
 <body>
-    <script> baseuri = "{{baseuri | safe}}"</script>
-    <script> meibaseuri = "{{meibaseuri | safe}}"</script>
+    <script> 
+        baseuri = "{{baseuri | safe}}";
+        meibaseuri = "{{meibaseuri | safe}}";
+        basecamp_mei_file = "{{basecamp_mei_file | safe}}";
+    </script>
     <button type="button" onclick="startTheClimb()">Start new game</button>
 </body>
 </html>
