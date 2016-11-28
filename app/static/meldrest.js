@@ -305,8 +305,20 @@ function loadPage() {
             // on last page; do nothing
             console.log("loadPage: Already on last page...");
         }
-
     }
+
+	// now set the indicator
+	$("#indicator").html("");
+	if(currentPage < vrvToolkit.getPageCount()) { 
+		$("#indicator").append("Pedal action: turn to next page. ");
+	} else { 
+		$("#indicator").append("Pedal action: load the next piece. ");
+	}
+	if(queuedAnnoState) { 
+		$("#indicator").append("Next piece queued.")
+	} else { 
+		$("#indicator").append("NO NEXT PIECE QUEUED!");
+	}
 };
 
 function drawPage() { 
