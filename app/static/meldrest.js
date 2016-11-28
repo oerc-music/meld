@@ -4,6 +4,7 @@ var vrvToolkit = new verovio.toolkit();
 var annotationGraph;
 var scorePageMei;
 var currentPage;
+var currentMei;
 var jumpToPage;
 var actionsLog = [];
 
@@ -15,7 +16,10 @@ var composerName;
 var songList = [];
 
 var queuedAnnoState;
+var queuedMei;
 
+var errorCount = 0;
+var retryLimit = 10;
 
 function preInitBoundingBoxes() { 
     // draw a basic (lowest-level-above-score) bounding box for every measure
@@ -50,7 +54,7 @@ function grabExternalData() {
     // only call me once per MEI file
     var meiFile = annotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"];
     $.get(meiFile, function() {console.log("trying...");}).done( function(xmlDoc) { 
-        console.log(xmlDoc);
+        //console.log(xmlDoc);
         composerUri = $(xmlDoc).find("persName[role='composer'] ptr").attr("xlink:target");
         $.ajax( { 
             dataType:"jsonp",
@@ -63,7 +67,7 @@ function grabExternalData() {
                 dataType:"jsonp",
                 url: "http://127.0.0.1:8890/sparql?default-graph-uri=&query=prefix+dbr%3A%09%3Chttp%3A%2F%2Fdbpedia.org%2Fresource%2F%3E+%0D%0APREFIX+skos%3A++++%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0Aprefix+dbo%3A%09%3Chttp%3A%2F%2Fdbpedia.org%2Fontology%2F%3E+%0D%0Aprefix+dbp%3A+++++%3Chttp%3A%2F%2Fdbpedia.org%2Fproperty%2F%3E%0D%0Aprefix+foaf%3A++++%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0D%0A%0D%0Aselect+%3Ftitle+WHERE+{%0D%0A++GRAPH+%3Chttp%3A%2F%2Fmeld.linkedmusic.org%3E+{++%0D%0A++++%3Fs+a+dbo%3ASong+%3B%0D%0A+++++++foaf%3Aname+%3Ftitle+%3B%0D%0A+++++++dbp%3Aartist+" + encodeURIComponent("<" + composerUri + ">") + ".%0D%0A++}%0D%0A}%0D%0ALIMIT+30&should-sponge=&format=application%2Fjson",
                 success:function(data) {
-                    console.log("SUCCESS", data["results"]["bindings"]);
+                    //console.log("SUCCESS", data["results"]["bindings"]);
                     results = data["results"]["bindings"];
                     for (r=0; r<results.length;r++) {
                         //console.log(results[r]["title"]["value"]);
@@ -88,7 +92,7 @@ function initBoundingBox(target, actionid, exclude) {
         // if target is on page, and bounding box is not yet initialised...
         var fudgeX = 50; var fudgeY = 50; 
         var targetElement = document.getElementById(targetid)
-            console.log("inspecting", targetElement);
+            //console.log("inspecting", targetElement);
         var bbox = targetElement.getBBox();
         var xpos = Math.round(bbox["x"]/10 + fudgeX);
         var ypos = Math.round(bbox["y"]/10 + fudgeY);
@@ -118,7 +122,7 @@ function initBoundingBox(target, actionid, exclude) {
 function applyActions(actions, target, actionid, annotationid) {
     //console.log("Applying actions", actions, target, actionid, annotationid);
     for (var a=0; a<actions.length; a++) { 
-        console.log(actions[a]);
+        //console.log(actions[a]);
         if(Array.isArray(actions[a]["@type"])) {
             // composite annotations
 
@@ -168,20 +172,20 @@ function applyCreateNextCollection(target, resources, initAnnotations, annotatio
     data: $.param({"annotationId": annotationid, "actionRequired": "false"})
     }).done( function() { 
         // 1. POST to /collection factory, specifying target resources and initial annotations
-        console.log("POSTING to collection")
+        //console.log("POSTING to collection")
         $.post(
             "/collection", 
             $.param({"topLevelTargets": resources.join("|"), "initialAnnotations": initAnnotations})
             ).done(function(data, textStatus, xhr) { 
                 // 2. POST to the collection's createAnnoStateUri
                 createAnnoStateUri = $.parseHTML(data)[0].getAttribute("href");
-                console.log("POSTING to createAnnoStateUri: ", createAnnoStateUri);
+                //console.log("POSTING to createAnnoStateUri: ", createAnnoStateUri);
                 $.post(
                     createAnnoStateUri
                     //				$.param({"collection": xhr.getResponseHeader("Location")})
                     ).done(function(data, textStatus, xhr) { 
                         // 3. POST a QueueAnnoState annotation to the current collection
-                        console.log("Posting to ", annotationGraph["@graph"][0]["@id"]);
+                        //console.log("Posting to ", annotationGraph["@graph"][0]["@id"]);
                         $.post(
                             annotationGraph["@graph"][0]["@id"],
                             JSON.stringify({
@@ -201,9 +205,15 @@ function applyCreateNextCollection(target, resources, initAnnotations, annotatio
 
 function applyQueueAnnoState(target, annostate, annotationid) { 
     // 1. load annostate into nextAnnoState variable in memory
-    // TODO handle multiple queue items
+    //      - TODO handle multiple queue items
     queuedAnnoState = annostate[0];
-    // 2. PATCH to /annostate with this annotationid to say it's handled
+    // 2. GET the annotations to figure out the name of the next MEI file
+    $.getJSON(queuedAnnoState).done(function(nextAnnotationGraph) { 
+        //console.log(nextAnnotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"]);
+        var queuedMeiUri = nextAnnotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"];
+        queuedMei = queuedMeiUri.substr(queuedMeiUri.lastIndexOf('/')+1);
+    });
+    // 3. PATCH to /annostate with this annotationid to say it's handled
     $.ajax({
         type: "PATCH", 
         url: target,
@@ -305,38 +315,44 @@ function loadPage() {
             window.location.href = baseuri + "/viewer?annostate=" + queuedAnnoState;
         } else { 
             // on last page; do nothing
-            console.log("loadPage: Already on last page...");
+            //console.log("loadPage: Already on last page...");
         }
     }
 }
 
 function updateIndicator() { 
 	$("#indicator").html("");
-    var color="black";
-    var onLastPage = false;
-    if(currentPage === vrvToolkit.getPageCount()) { 
-        onLastPage = true;
+    targetid = annotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"];
+    currentMei = targetid.substr(targetid.lastIndexOf('/')+1);
+    $("#indicator").append("Current: "+currentMei+" | Page "+currentPage+" of "+vrvToolkit.getPageCount());
+    if(queuedAnnoState) { 
+        $("#indicator").append(" | Next: "+queuedMei);
     }
-
-	if(onLastPage) { 
-		$("#indicator").append("Pedal action: load the next piece. ");
-	} else { 
-		$("#indicator").append("Pedal action: turn to next page. ");
-	}
-
-	if(queuedAnnoState) { 
-		$("#indicator").append("Next piece queued.")
-	} else { 
-		$("#indicator").append("NO NEXT PIECE QUEUED!");
-	}
-
-    if(onLastPage && queuedAnnoState) { 
-        color = "green";
-    } else if (onLastPage) { 
-        color = "red";
-    }
-
-    $("#indicator").css("color", color);
+//    var color="black";
+//    var onLastPage = false;
+//    if(currentPage === vrvToolkit.getPageCount()) { 
+//        onLastPage = true;
+//    }
+//
+//	if(onLastPage) { 
+//		$("#indicator").append("Pedal action: load the next piece. ");
+//	} else { 
+//		$("#indicator").append("Pedal action: turn to next page. ");
+//	}
+//
+//	if(queuedAnnoState) { 
+//		$("#indicator").append("Next piece queued.")
+//	} else { 
+//		$("#indicator").append("NO NEXT PIECE QUEUED!");
+//	}
+//
+//    if(onLastPage && queuedAnnoState) { 
+//        color = "green";
+//    } else if (onLastPage) { 
+//        color = "red";
+//    }
+//
+//    $("#indicator").css("color", color);
 };
 
 function drawPage() { 
@@ -376,7 +392,7 @@ function processRdf() {
     if(typeof annotations !== "undefined") { 
         // work through each constituent annotation
         for (var a=0; a<annotations.length; a++) { 
-            console.log(annotations[a]);
+            //console.log(annotations[a]);
             if(annotations[a]["meldterm:actionRequired"] === "false") {
                 //FIXME n.b.: string "false", not boolean, because jquery mangled it into a string
                 //when the client sent it to the server 
@@ -429,12 +445,19 @@ function refresh() {
             drawPage();
             setTimeout(refresh, 50);
         });
+    }).fail(function(xhr, textStatus) { 
+        if(errorCount < retryLimit){
+            errorCount++;
+            // try again
+            setTimeout(refresh, 50);
+        } else { 
+            $("#indicator").append(" | <span style='color:red;'>Sorry, giving up: "+textStatus+". Try refreshing the page?</span>");
+        }
     }); 
-
 }
 
 function generateMenu() { 
-    console.log("Generating menu")
+    //console.log("Generating menu")
         jumpTargets = annotationGraph["@graph"][0]["oa:hasTarget"][0]["meldterm:hasJumpTarget"];
     jumpTargets= jumpTargets.sort(function(a,b) { 
         return a["meldterm:menuOrder"] - b["meldterm:menuOrder"];
