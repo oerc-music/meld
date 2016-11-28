@@ -1,3 +1,5 @@
+$.ajaxSetup({timeout: 1000});
+
 var vrvToolkit = new verovio.toolkit();
 var annotationGraph;
 var scorePageMei;
