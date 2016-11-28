@@ -443,6 +443,7 @@ function refresh() {
             scorePageMei = meiData;
         }).done(function() { 
             drawPage();
+            errorCount = 0;
             setTimeout(refresh, 50);
         });
     }).fail(function(xhr, textStatus) { 
