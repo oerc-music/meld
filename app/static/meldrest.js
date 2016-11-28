@@ -306,19 +306,35 @@ function loadPage() {
             console.log("loadPage: Already on last page...");
         }
     }
+}
 
-	// now set the indicator
+function updateIndicator() { 
 	$("#indicator").html("");
-	if(currentPage < vrvToolkit.getPageCount()) { 
-		$("#indicator").append("Pedal action: turn to next page. ");
-	} else { 
+    var color="black";
+    var onLastPage = false;
+    if(currentPage === vrvToolkit.getPageCount()) { 
+        onLastPage = true;
+    }
+
+	if(onLastPage) { 
 		$("#indicator").append("Pedal action: load the next piece. ");
+	} else { 
+		$("#indicator").append("Pedal action: turn to next page. ");
 	}
+
 	if(queuedAnnoState) { 
 		$("#indicator").append("Next piece queued.")
 	} else { 
 		$("#indicator").append("NO NEXT PIECE QUEUED!");
 	}
+
+    if(onLastPage && queuedAnnoState) { 
+        color = "green";
+    } else if (onLastPage) { 
+        color = "red";
+    }
+
+    $("#indicator").css("color", color);
 };
 
 function drawPage() { 
@@ -327,6 +343,7 @@ function drawPage() {
         scorePageMei = oSerializer.serializeToString(scorePageMei)
     }
     vrvToolkit.loadData(scorePageMei);
+    updateIndicator();
     var svg = vrvToolkit.renderPage(currentPage);
     $("#thescore").html(svg);
     /* "pre"-init bounding boxes for each measure on page, adding context menu handlers */ 
