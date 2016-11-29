@@ -14,7 +14,10 @@
 			var annostate = "{{ annostate | safe}}";
             var muzicodesuri = "{{ muzicodesuri | safe }}";
 	</script>
-	<div id="indicator">
+	<div id="indicatorBar">
+        <button type="button" id="prevButton" onclick="prevPage()">Previous</button>
+        <button type="button" id="nextButton" onclick="nextPage()">Next</button>
+        <span id="indicator"></span>
 	</div>
     <div id="scorepane">
         <div id="annotations"></div>

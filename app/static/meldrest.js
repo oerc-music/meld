@@ -134,6 +134,8 @@ function applyActions(actions, target, actionid, annotationid) {
                 applyQueueAnnoState(target, actions[a]["annoStateToQueue"], annotationid);
             } else if (actions[a]["@type"] === "meldterm:NextPageOrPiece") { 
                 applyNextPageOrPiece(target, annotationid);
+            } else if (actions[a]["@type"] === "meldterm:PreviousPageOrPiece") { 
+                applyPreviousPageOrPiece(target, annotationid);
             } else if(actions[a]["@type"] === "meldterm:Jump") { 
                 //	console.log(target["@id"]);
                 initBoundingBox(target, actionid);
@@ -195,7 +197,7 @@ function applyCreateNextCollection(target, resources, initAnnotations, annotatio
                             "annoStateToQueue": [xhr.getResponseHeader("Location")]
                             }]
                             })
-                            )
+                        )
                     })
             })
     });
@@ -229,6 +231,22 @@ function applyNextPageOrPiece(target, annotationid) {
         type: "PATCH", 
         url: target,
         data: $.param({"annotationId": annotationid, "actionRequired": "false"})
+    });
+}
+
+function applyPreviousPageOrPiece(target, annotationid) { 
+    // PATCH to /annostate with this annotationid to say it's handled
+    $.ajax({
+        type: "PATCH", 
+        url: target,
+        data: $.param({"annotationId": annotationid, "actionRequired": "false"})
+    }).done(function() { 
+        if(currentPage > 1) { 
+            currentPage--; 
+        } else { 
+            // browser back
+            window.history.back();
+        }
     });
 }
 
@@ -318,6 +336,30 @@ function loadPage() {
             //console.log("loadPage: Already on last page...");
         }
     }
+}
+
+function nextPage() { 
+    $.post(
+        annotationGraph["@graph"][0]["@id"],
+        JSON.stringify({
+            "oa:hasTarget":[annostate], 
+            "oa:hasBody":[{
+                "@type":"meldterm:NextPageOrPiece"
+            }]
+        })
+    );
+}
+
+function prevPage() { 
+    $.post(
+        annotationGraph["@graph"][0]["@id"],
+        JSON.stringify({
+            "oa:hasTarget":[annostate],
+            "oa:hasBody":[{
+                "@type":"meldterm:PreviousPageOrPiece"
+            }]
+        })
+    );
 }
 
 function updateIndicator() { 
@@ -442,6 +484,11 @@ function refresh() {
             }
             scorePageMei = meiData;
         }).done(function() { 
+            if(!queuedAnnoState && currentPage === vrvToolkit.getPageCount()) { 
+                $("#nextButton").prop('disabled', true);
+            } else { 
+                $("#nextButton").prop('disabled', false);
+            }
             drawPage();
             errorCount = 0;
             setTimeout(refresh, 50);
