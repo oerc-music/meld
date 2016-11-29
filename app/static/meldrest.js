@@ -366,9 +366,9 @@ function updateIndicator() {
 	$("#indicator").html("");
     targetid = annotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"];
     currentMei = targetid.substr(targetid.lastIndexOf('/')+1);
-    $("#indicator").append("Current: "+currentMei+" | Page "+currentPage+" of "+vrvToolkit.getPageCount());
+    $("#indicator").append("Current: "+decodeURIComponent(currentMei)+" | Page "+currentPage+" of "+vrvToolkit.getPageCount());
     if(queuedAnnoState) { 
-        $("#indicator").append(" | Next: "+queuedMei);
+        $("#indicator").append(" | Next: "+decodeURIComponent(queuedMei));
     }
 //    var color="black";
 //    var onLastPage = false;
