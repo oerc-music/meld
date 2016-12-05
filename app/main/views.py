@@ -111,21 +111,49 @@ def jumpTo(uid):
     jumpTo = request.form["jumpTarget"]
     # load the current RDF file
     rdf_file = "{0}/rdf/{1}.ttl".format(basedir, uid)
+    print rdf_file
     if not os.path.isfile(rdf_file):
         abort(404) # file not found
     newActionId = uuid()
+    print "TRYING NOW"
     with open(rdf_file, "a") as jamfile:
         jamfile.write("""
-        <{0}jams/{1}> oa:hasBody meld:{2} .
-        meld:{1} a oa:Annotation ;
+        <{0}/jams/{1}> oa:hasBody meld:{2} .
+        meld:{2} a oa:Annotation ;
             oa:hasBody [
                 a meldterm:Jump ;
                 meldterm:jumpTo <{3}>
             ];
             oa:hasTarget <{4}> .
-            """.format(baseuri, newActionId, jumpTo, jumpFrom))
+            """.format(baseuri, uid, newActionId, jumpTo, jumpFrom))
 
-    return("", 200);
+    return("", 200)
+
+@main.route("/jams/<uid>/jump", methods=["GET"])
+def jumpToByGet(uid):
+    jumpFrom = request.args["from"]
+    jumpTo = request.args["to"]
+    baseuri = "http://meld.linkedmusic.org/mei/" + uid + ".mei"
+    print jumpFrom
+    print jumpTo
+    # load the current RDF file
+    rdf_file = "{0}/rdf/{1}.ttl".format(basedir, uid)
+    if not os.path.isfile(rdf_file):
+        abort(404) # file not found
+    newActionId = uuid()
+    with open(rdf_file, "a") as jamfile:
+        jamfile.write("""
+        <{0}/jams/{1}> oa:hasBody meld:{2} .
+        meld:{2} a oa:Annotation ;
+            oa:hasBody [
+                a meldterm:Jump ;
+                meldterm:jumpTo <{3}>
+            ];
+            oa:hasTarget <{4}> .
+            """.format(baseuri, uid, newActionId, baseuri+ "#" + jumpTo, baseuri + "#" + jumpFrom));
+
+    return("OKAY!");
+
 
 @main.route("/collection", methods=["POST"])
 def createCollection():

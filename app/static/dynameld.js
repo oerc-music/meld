@@ -45,7 +45,7 @@ function grabExternalData() {
     // only call me once per MEI file
     var meiFile = annotationGraph["@graph"][0]["oa:hasTarget"][0]["@id"];
     $.get(meiFile, function() {console.log("trying...");}).done( function(xmlDoc) { 
-        console.log(xmlDoc);
+        //console.log(xmlDoc);
         composerUri = $(xmlDoc).find("persName[role='composer'] ptr").attr("xlink:target");
         $.ajax( { 
             dataType:"jsonp",
@@ -256,6 +256,7 @@ function processRdf() {
     if(typeof annotations !== "undefined") { 
         // work through each constituent annotation
         for (var a=0; a<annotations.length; a++) { 
+						console.log(annotations[a]);
             actionid = annotations[a]["@id"].substr(annotations[a]["@id"].lastIndexOf("/")+1) + "_";
             var annotationBodies = annotations[a]["oa:hasBody"];
             var annotationTargets = annotations[a]["oa:hasTarget"];
@@ -286,6 +287,9 @@ function refresh() {
         var pageUri= window.location.pathname;
         var voice = parseInt(pageUri.substr(pageUri.lastIndexOf('/')+1));
         $.get(meiFile, function(meiData) { 
+						if(typeof meiData === "string") { 
+								meiData = new DOMParser().parseFromString(meiData, "text/xml");
+						}
             if(voice) { 
                 // separate out this voice
                 var elements = meiData.evaluate('//mei:staffDef[attribute::n] | //mei:staff[attribute::n]', meiData, function(prefix) { ns = { "mei": "http://www.music-encoding.org/ns/mei"}; return ns[prefix] || null}, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -302,7 +306,7 @@ function refresh() {
         }).done(function() { 
             console.log("Drawing page and iterating");
             drawPage();
-            setTimeout(refresh, 500);
+            setTimeout(refresh, 50);
         });
     }); 
 
