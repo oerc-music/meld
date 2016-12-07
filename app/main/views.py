@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, current_app, abort, make_response
+from flask import render_template, request, redirect, url_for, current_app, abort, make_response, send_file
 from config import basedir, baseuri, meibaseuri, muzicodesuri, basecamp_mei_file
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -153,6 +153,12 @@ def jumpToByGet(uid):
             """.format(baseuri, uid, newActionId, baseuri+ "#" + jumpTo, baseuri + "#" + jumpFrom));
 
     return("OKAY!");
+
+@main.route("/resetdemo", methods=["GET"])
+def resetDemo():
+	shutil.copy("{0}/rdf/resetdemo.ttl".format(basedir), "{0}/rdf/demo.ttl".format(basedir))
+	return('<html><head><title>Demo reset</title></head><body><a href="/jams/demo">Go to demo</a>')
+		
 
 
 @main.route("/collection", methods=["POST"])
@@ -328,3 +334,7 @@ def muzicodesDebug():
     print "GOT MUZICODES CALL:"
     pprint(request.form)
     return make_response("", 200)
+
+@main.route("/rdf/<uid>", methods=["GET"])
+def getRdf(uid) : 
+	return send_file("{0}/rdf/{1}".format(basedir, uid))

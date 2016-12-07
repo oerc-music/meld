@@ -49,14 +49,14 @@ function grabExternalData() {
         composerUri = $(xmlDoc).find("persName[role='composer'] ptr").attr("xlink:target");
         $.ajax( { 
             dataType:"jsonp",
-            url:"http://127.0.0.1:8890/sparql?default-graph-uri=&query=PREFIX+dbr%3A+%3Chttp%3A%2F%2Fdbpedia.org%2Fresource%2F%3E%0D%0ASELECT+%3Fname+WHERE+{%0D%0A+++graph+%3Chttp%3A%2F%2Fmeld.linkedmusic.org%3E+{+%0D%0A++++++++"+ encodeURIComponent("<" + composerUri + ">") +"+foaf%3Aname+%3Fname+.%0D%0A+++}%0D%0A}&should-sponge=&format=application%2Fjson",
+            url:"http://www.linkedmusic.org/sparql?default-graph-uri=&query=PREFIX+dbr%3A+%3Chttp%3A%2F%2Fdbpedia.org%2Fresource%2F%3E%0D%0ASELECT+%3Fname+WHERE+{%0D%0A+++graph+%3Chttp%3A%2F%2Fmeld.linkedmusic.org%3E+{+%0D%0A++++++++"+ encodeURIComponent("<" + composerUri + ">") +"+foaf%3Aname+%3Fname+.%0D%0A+++}%0D%0A}&should-sponge=&format=application%2Fjson",
             success: function(data) { 
                 composerName = data["results"]["bindings"][0]["name"]["value"];
             }
         }).done(function() { 
             $.ajax({
                   dataType:"jsonp",
-                  url: "http://127.0.0.1:8890/sparql?default-graph-uri=&query=prefix+dbr%3A%09%3Chttp%3A%2F%2Fdbpedia.org%2Fresource%2F%3E+%0D%0APREFIX+skos%3A++++%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0Aprefix+dbo%3A%09%3Chttp%3A%2F%2Fdbpedia.org%2Fontology%2F%3E+%0D%0Aprefix+dbp%3A+++++%3Chttp%3A%2F%2Fdbpedia.org%2Fproperty%2F%3E%0D%0Aprefix+foaf%3A++++%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0D%0A%0D%0Aselect+%3Ftitle+WHERE+{%0D%0A++GRAPH+%3Chttp%3A%2F%2Fmeld.linkedmusic.org%3E+{++%0D%0A++++%3Fs+a+dbo%3ASong+%3B%0D%0A+++++++foaf%3Aname+%3Ftitle+%3B%0D%0A+++++++dbp%3Aartist+" + encodeURIComponent("<" + composerUri + ">") + ".%0D%0A++}%0D%0A}%0D%0ALIMIT+30&should-sponge=&format=application%2Fjson",
+                  url: "http://www.linkedmusic.org/sparql?default-graph-uri=&query=prefix+dbr%3A%09%3Chttp%3A%2F%2Fdbpedia.org%2Fresource%2F%3E+%0D%0APREFIX+skos%3A++++%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0Aprefix+dbo%3A%09%3Chttp%3A%2F%2Fdbpedia.org%2Fontology%2F%3E+%0D%0Aprefix+dbp%3A+++++%3Chttp%3A%2F%2Fdbpedia.org%2Fproperty%2F%3E%0D%0Aprefix+foaf%3A++++%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0D%0A%0D%0Aselect+%3Ftitle+WHERE+{%0D%0A++GRAPH+%3Chttp%3A%2F%2Fmeld.linkedmusic.org%3E+{++%0D%0A++++%3Fs+a+dbo%3ASong+%3B%0D%0A+++++++foaf%3Aname+%3Ftitle+%3B%0D%0A+++++++dbp%3Aartist+" + encodeURIComponent("<" + composerUri + ">") + ".%0D%0A++}%0D%0A}%0D%0ALIMIT+30&should-sponge=&format=application%2Fjson",
                   success:function(data) {
                         console.log("SUCCESS", data["results"]["bindings"]);
                         results = data["results"]["bindings"];

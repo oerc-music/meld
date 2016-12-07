@@ -13,7 +13,7 @@ PREFIX fabio:        <http://purl.org/spar/fabio/>
 PREFIX dbp:         <http://dbpedia.org/resource/>
 PREFIX dct:         <http://purl.org/dc/terms/>
 
-<http://meld.linkedmusic.org/jams/AQsGCQsLBwoDAQIEBA8NDw> a oa:Annotation, meldterm:topLevel ;
+<http://meld.linkedmusic.org/jams/demo> a oa:Annotation, meldterm:topLevel ;
     oa:hasTarget <http://meld.linkedmusic.org/mei/When_Im_64.mei> .
 
 meldterm:Jump a oa:SemanticTag .
@@ -54,29 +54,3 @@ meldterm:Jump a oa:SemanticTag .
     meldterm:menuOrder 6
 ] .
 
-
-
-        <http://meld.linkedmusic.org/jams/AQsGCQsLBwoDAQIEBA8NDw> oa:hasBody meld:qa7qRpPuCfz7ikGSA87Lvd .
-        meld:qa7qRpPuCfz7ikGSA87Lvd a oa:Annotation ;
-            oa:hasBody [
-                a meldterm:Jump ;
-                meldterm:jumpTo <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000114868358>
-            ];
-            oa:hasTarget <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000090556540> .
-            
-        <http://meld.linkedmusic.org/jams/AQsGCQsLBwoDAQIEBA8NDw> oa:hasBody meld:hzWxmEeu3aJBF8EBNPeGdn .
-        meld:hzWxmEeu3aJBF8EBNPeGdn a oa:Annotation ;
-            oa:hasBody [
-                a meldterm:Jump ;
-                meldterm:jumpTo <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000132820916>
-            ];
-            oa:hasTarget <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000122975024> .
-            
-        <http://meld.linkedmusic.org/jams/AQsGCQsLBwoDAQIEBA8NDw> oa:hasBody meld:DGzYX93Nd2YM3RW6ZeKJwA .
-        meld:DGzYX93Nd2YM3RW6ZeKJwA a oa:Annotation ;
-            oa:hasBody [
-                a meldterm:Jump ;
-                meldterm:jumpTo <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000114868358>
-            ];
-            oa:hasTarget <http://meld.linkedmusic.org/mei/When_Im_64.mei#measure-000000186945794> .
-            

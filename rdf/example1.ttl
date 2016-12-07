@@ -1,7 +1,0 @@
-PREFIX oa: <http://www.w3.org/ns/oa#>
-
-<http://meld.linkedmusic.org/rdf/example1> a oa:Annotation .
-
-<http://meld.linkedmusic.org/example/Haydn_StringQuartet_Op1_No1-p1/d594751e451> <http://meld.linkedmusic.org/vocab/partOf> <http://meld.linkedmusic.org/example/reallyInterestingMusicologicalExample> .
-<http://meld.linkedmusic.org/example/Haydn_StringQuartet_Op1_No1-p1/d594751e684> <http://meld.linkedmusic.org/vocab/partOf> <http://meld.linkedmusic.org/example/reallyInterestingMusicologicalExample> .         
-<http://meld.linkedmusic.org/example/Haydn_StringQuartet_Op1_No1-p1/d594751e904> <http://meld.linkedmusic.org/vocab/partOf> <http://meld.linkedmusic.org/example/reallyInterestingMusicologicalExample> .

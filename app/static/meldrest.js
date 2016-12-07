@@ -491,13 +491,13 @@ function refresh() {
             }
             drawPage();
             errorCount = 0;
-            setTimeout(refresh, 50);
+            setTimeout(refresh, 20);
         });
     }).fail(function(xhr, textStatus) { 
         if(errorCount < retryLimit){
             errorCount++;
             // try again
-            setTimeout(refresh, 50);
+            setTimeout(refresh, 20);
         } else { 
             $("#indicator").append(" | <span style='color:red;'>Sorry, giving up: "+textStatus+". Try refreshing the page?</span>");
         }
@@ -556,7 +556,8 @@ $(document).ready(function() {
     var options = JSON.stringify({
         ignoreLayout: 1,
         adjustPageHeight: 1,
-        scale:50
+        scale:50, 
+				pageHeight: 2000
     });
     vrvToolkit.setOptions(options);
     currentPage = 1;

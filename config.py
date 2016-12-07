@@ -4,7 +4,7 @@ baseuri = os.environ.get('MELD_BASE_URI') or 'http://meld.linkedmusic.org'
 meibaseuri = os.environ.get('MELD_MEI_URI') or 'http://meld.linkedmusic.org/mei'
 # following 2 are for performance super-demonstrator
 muzicodesuri = os.environ.get('MELD_MUZICODES_URI') or 'http://meld.linkedmusic.org/muzicodes'
-basecamp_mei_file= os.environ.get('MELD_BASECAMP_MEI_FILE') or 'http://meld.linkedmusic.org/mei/BaseCamp.mei'
+basecamp_mei_file= os.environ.get('MELD_BASECAMP_MEI_FILE') or 'http://meld.linkedmusic.org/mei/MSThe Climb (Base Camp), muzicodeEdit.mei'
 
 
 class Config:
@@ -27,6 +27,6 @@ config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
-    'default': ProductionConfig
+    'default': DevelopmentConfig
 }
 
