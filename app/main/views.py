@@ -337,4 +337,9 @@ def muzicodesDebug():
 
 @main.route("/rdf/<uid>", methods=["GET"])
 def getRdf(uid) : 
-	return send_file("{0}/rdf/{1}".format(basedir, uid))
+	with open("{0}/rdf/{1}".format(basedir, uid)) as rdfFile:
+		rdf = rdfFile.read()
+	rdf = "<pre>" + rdf + "</pre>"
+	r = make_response(rdf, 200)
+#	r.mimetype = "text/turtle"
+	return r
