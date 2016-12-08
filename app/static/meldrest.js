@@ -136,6 +136,8 @@ function applyActions(actions, target, actionid, annotationid) {
                 applyNextPageOrPiece(target, annotationid);
             } else if (actions[a]["@type"] === "meldterm:PreviousPageOrPiece") { 
                 applyPreviousPageOrPiece(target, annotationid);
+            } else if (actions[a]["@type"] === "meldterm:Emphasis") { 
+                applyEmphasis(target, annotationid);
             } else if(actions[a]["@type"] === "meldterm:Jump") { 
                 //	console.log(target["@id"]);
                 initBoundingBox(target, actionid);
