@@ -255,7 +255,9 @@ function applyPreviousPageOrPiece(target, annotationid) {
 function applyEmphasis(target, actionid) { 
     var targetid = getTargetId(target["@id"]);
     var element = document.getElementById(targetid);
-    element.classList.add("emphasis");
+    if(element) { 
+				element.classList.add("emphasis");
+		}
     // why not $("#targetid").addClass("emphasis") ?
     // see http://stackoverflow.com/questions/8638621/jquery-svg-why-cant-i-addclass
 }
