@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, current_app, abort, make_response, send_file
+from flask import render_template, request, redirect, url_for, current_app, abort, make_response, send_file, jsonify
 from config import basedir, baseuri, meibaseuri, muzicodesuri, basecamp_mei_file
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -12,6 +12,7 @@ import shutil
 import re
 from shortuuid import uuid
 from datetime import datetime
+import md5
 
 from . import main
 
@@ -343,3 +344,65 @@ def getRdf(uid) :
 	r = make_response(rdf, 200)
 #	r.mimetype = "text/turtle"
 	return r
+
+
+###############################FAST MELD###################################
+
+@main.route("/sessions", methods=["GET"])
+def getSessions():
+    req_etags = request.headers.get('If-None-Match')
+    sessionsFile = "{0}/sessions.ttl".format(basedir)
+    # calculate file etag
+    # see if it's in any of the req_etags. If so, return 304. 
+    file_etag = calculateETag(sessionsFile)
+    if req_etags and file_etag in req_etags:
+        return make_response("", 304)
+    #FIXME note race condition if file changes between the etag check and the end of the
+    # with statement below!!
+    with open(sessionsFile) as session:
+        g = Graph().parse(session, publicID="{0}/sessions".format(baseuri), format="turtle")
+        # TODO return as best mimetype
+        r = make_response(g.serialize(format="turtle"), 200)
+        # add etag to headers
+        r.headers.add("ETag", file_etag)
+        return r
+
+@main.route("/sessions", methods=["POST"])
+def createSession():
+    contentType = request.headers.get('Content-Type')
+    sessionsUri = baseuri + "/sessions/"
+    slug = request.headers.get('Slug') 
+    #FIXME do validation on slug
+    if slug:
+        if os.path.isfile("{0}/sessions/{1}.ttl".format(basedir, slug)):
+            pubId = slug + "_" + uuid()
+        else:
+            pubId = slug 
+    else:
+        pubId = uuid() 
+    try: 
+        g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format=contentType)
+    except Exception as e: 
+        print e
+        abort(400)
+    
+    with open("{0}/sessions.ttl".format(basedir), "a") as sessionsContainer:
+        sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
+
+    with open("{0}/sessions/{1}.ttl".format(basedir, pubId), "w") as sessionFile:
+        sessionFile.write(g.serialize(format="text/turtle"));
+
+
+    r = make_response(g.serialize(format=contentType), 201)
+    r.headers.add("Location", sessionsUri + pubId)
+    return r
+
+def calculateETag(theFile):
+	# helper function: calculate ETag in a consistent way
+        # currently: hash of size + last modified
+        stats = os.stat(theFile)
+        m = md5.new()
+        m.update(str(stats.st_size))
+        m.update(str(stats.st_mtime))
+        return  m.hexdigest()
+
