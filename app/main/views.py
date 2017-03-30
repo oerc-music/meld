@@ -349,6 +349,7 @@ def getRdf(uid) :
 ###############################FAST MELD###################################
 
 @main.route("/sessions", methods=["GET"])
+# returns the list of all sessions (LDP container)
 def getSessions():
     req_etags = request.headers.get('If-None-Match')
     sessionsFile = "{0}/sessions.ttl".format(basedir)
@@ -368,6 +369,7 @@ def getSessions():
         return r
 
 @main.route("/sessions", methods=["POST"])
+# add a new session to the LDP container
 def createSession():
     contentType = request.headers.get('Content-Type')
     sessionsUri = baseuri + "/sessions/"
@@ -385,17 +387,94 @@ def createSession():
     except Exception as e: 
         print e
         abort(400)
-    
+    # add in a link to this session's "join session" URI 
+    g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/joinSession"), URIRef(sessionsUri+pubId+"/join")))
     with open("{0}/sessions.ttl".format(basedir), "a") as sessionsContainer:
         sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
-
     with open("{0}/sessions/{1}.ttl".format(basedir, pubId), "w") as sessionFile:
         sessionFile.write(g.serialize(format="text/turtle"));
-
-
     r = make_response(g.serialize(format=contentType), 201)
     r.headers.add("Location", sessionsUri + pubId)
     return r
+
+@main.route("/sessions/<sessionid>", methods=["GET"])
+# returns the session
+def getSession(sessionid):
+    req_etags = request.headers.get('If-None-Match')
+    sessionsFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
+    # calculate file etag
+    # see if it's in any of the req_etags. If so, return 304. 
+    try:
+        file_etag = calculateETag(sessionsFile)
+    except:
+        abort(404)
+    if req_etags and file_etag in req_etags:
+        return make_response("", 304)
+    #FIXME note race condition if file changes between the etag check and the end of the
+    # with statement below!!
+    with open(sessionsFile) as session:
+        g = Graph().parse(session, publicID="{0}/sessions/{1}.ttl".format(baseuri,sessionid), format="turtle")
+    # TODO return as best mimetype
+    r = make_response(g.serialize(format="turtle"), 200)
+    # add etag to headers
+    r.headers.add("ETag", file_etag)
+    return r
+    
+@main.route("/sessions/<sessionid>/join", methods=["POST"])
+# join the session, adding in performer details and a link to this performerSessionView 
+def joinSession(sessionid):
+    contentType = request.headers.get('Content-Type')
+    req_etags = request.headers.get('If-None-Match')
+    sessionFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
+    if not req_etags:
+        print "ETag missing"
+        abort(400) # must include an etag when attempting to join session
+    try:
+        file_etag = calculateETag(sessionFile)
+    except:
+        abort(404) # requested sessions file (and thus, session) doesn't exist
+    if file_etag not in req_etags:
+        return abort(412) # precondition failed - client working with an outdated session
+    with open(sessionFile) as session:
+        # construct graph for this session
+        g = Graph().parse(session, publicID="{0}/sessions/{1}".format(baseuri,sessionid), format="turtle")
+    try:
+        sessionPerformerUri ="{0}/sessions/{1}/{2}".format(baseuri,sessionid, uuid())
+        # construct sub-graph supplied by request
+        h = Graph().parse(publicID=sessionPerformerUri, data=request.data, format=contentType)
+        # mint a link to this session performer view
+        h.add((
+            URIRef(sessionPerformerUri),
+            URIRef("http://meld.linkedmusic.org/terms/sessionPerformerView"),
+            URIRef("http://meld.linkedmusic.org/view/{0}".format(uuid()))
+        ))
+    except Exception as e: 
+        print e
+        abort(400) # bad request - can't interpret request data
+    # link the sub-graph into our session graph
+    g.add(( 
+        URIRef("{0}/sessions/{1}".format(baseuri, sessionid)), 
+        URIRef("http://meld.linkedmusic.org/terms/performedBy"),
+        URIRef(sessionPerformerUri)
+    ))
+    # and merge them
+    g = g + h
+    tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
+    with open(tmpFile, 'w') as tmp:
+        tmp.write(g.serialize(format="turtle"))
+    # check etag of sesion file one more time...
+    new_etag = calculateETag(sessionFile)
+    if file_etag != new_etag:
+        abort(412) # precondition failed - file changed while we were handling the request!
+    # atomically overwrite old session file with new tmp file
+    os.rename(tmpFile, sessionFile)
+    r = make_response("",201)
+    r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
+    r.headers.add("ETag", file_etag)
+    return r
+    
+
+
 
 def calculateETag(theFile):
 	# helper function: calculate ETag in a consistent way

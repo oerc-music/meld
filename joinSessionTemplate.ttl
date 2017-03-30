@@ -1,0 +1,5 @@
+PREFIX meldterm: <http://meld.linkedmusic.org/terms/>
+
+<> a meldterm:SessionPerformer; 
+	meldterm:performer <http://meld.linkedmusic.org/performers/Bob> ;
+	meldterm:role <http://meld.linkedmusic.org/roles/guitarist> .
