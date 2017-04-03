@@ -2,8 +2,11 @@ PREFIX meldterm: <http://meld.linkedmusic.org/terms/>
 PREFIX mp: <http://id.loc.gov/authorities/performanceMediums/>
 PREFIX mo: <http://purl.org/ontology/mo/>
 PREFIX mmtrole: <http://mmt.linkedmusic.org/roles/>
+PREFIX schema: <http://schema.org/>
+PREFIX oa: <http://www.w3.org/ns/oa#>
 
-<> a meldterm:SessionPerformerContext; 
-	mo:performer <http://meld.linkedmusic.org/performers/Bob> ;
-	meldterm:performerRole mmtrole:Lead ;
-	mo:primary_instrument mp:mp2013015239 .
+<> a oa:Annotation ;
+	schema:audience [ 
+		a mo:Performer ;
+		meldterm:performerRole mmtrole:Lead 
+	] .

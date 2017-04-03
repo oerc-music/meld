@@ -1,4 +1,7 @@
 PREFIX meldterm: <http://meld.linkedmusic.org/terms/>
+PREFIX mo: <http://purl.org/ontology/mo/>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
 
-<> a meldterm:session ;
-    meldterm:workPerformed <http://meld.linkedmusic.org/works/WhenIm64> .
+<> a mo:Performance , ldp:BasicContainer ;
+    mo:performance_of <http://meld.linkedmusic.org/works/WhenIm64> .
+	

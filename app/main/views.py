@@ -4,7 +4,7 @@ from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pyld import jsonld
 import json 
-from rdflib import Graph, plugin, URIRef, Literal
+from rdflib import Graph, plugin, URIRef, Literal, BNode
 from rdflib.parser import Parser
 from rdflib.serializer import Serializer
 import os
@@ -13,6 +13,7 @@ import re
 from shortuuid import uuid
 from datetime import datetime
 import md5
+import itertools
 
 from . import main
 
@@ -387,8 +388,9 @@ def createSession():
     except Exception as e: 
         print e
         abort(400)
-    # add in a link to this session's "join session" URI 
+    # add in links to this session's "join session" and "create session annotation"(??) URIs 
     g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/joinSession"), URIRef(sessionsUri+pubId+"/join")))
+    # g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/createSessionAnnotation"), URIRef(sessionsUri+pubId)))
     with open("{0}/sessions.ttl".format(basedir), "a") as sessionsContainer:
         sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
     with open("{0}/sessions/{1}.ttl".format(basedir, pubId), "w") as sessionFile:
@@ -427,7 +429,7 @@ def joinSession(sessionid):
     req_etags = request.headers.get('If-None-Match')
     sessionFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
     if not req_etags:
-        print "ETag missing"
+        print "If-None-Match (etag) missing"
         abort(400) # must include an etag when attempting to join session
     try:
         file_etag = calculateETag(sessionFile)
@@ -442,19 +444,13 @@ def joinSession(sessionid):
         sessionPerformerUri ="{0}/sessions/{1}/{2}".format(baseuri,sessionid, uuid())
         # construct sub-graph supplied by request
         h = Graph().parse(publicID=sessionPerformerUri, data=request.data, format=contentType)
-        # mint a link to this session performer view
-        h.add((
-            URIRef(sessionPerformerUri),
-            URIRef("http://meld.linkedmusic.org/terms/sessionPerformerView"),
-            URIRef("http://meld.linkedmusic.org/view/{0}".format(uuid()))
-        ))
     except Exception as e: 
         print e
         abort(400) # bad request - can't interpret request data
     # link the sub-graph into our session graph
     g.add(( 
         URIRef("{0}/sessions/{1}".format(baseuri, sessionid)), 
-        URIRef("http://meld.linkedmusic.org/terms/performedBy"),
+        URIRef("http://meld.linkedmusic.org/terms/hasSessionPerformerContext"),
         URIRef(sessionPerformerUri)
     ))
     # and merge them
@@ -462,7 +458,7 @@ def joinSession(sessionid):
     tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
     with open(tmpFile, 'w') as tmp:
         tmp.write(g.serialize(format="turtle"))
-    # check etag of sesion file one more time...
+    # check etag of session file one more time...
     new_etag = calculateETag(sessionFile)
     if file_etag != new_etag:
         abort(412) # precondition failed - file changed while we were handling the request!
@@ -472,8 +468,93 @@ def joinSession(sessionid):
     r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
     r.headers.add("ETag", file_etag)
     return r
-    
 
+@main.route("/sessions/<sessionid>", methods=["POST"])
+#TODO refactor (boilerplate duplication with joinSession)
+def createSessionAnnotation(sessionid):
+    print "PING"
+    contentType = request.headers.get('Content-Type')
+    req_etags = request.headers.get('If-None-Match')
+    sessionFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
+    if not req_etags:
+        print "If-None-Match (etag) missing"
+        abort(400) # must include an etag when attempting to join session
+    try:
+        file_etag = calculateETag(sessionFile)
+    except:
+        abort(404) # requested sessions file (and thus, session) doesn't exist
+    if file_etag not in req_etags:
+        return abort(412) # precondition failed - client working with an outdated session
+    with open(sessionFile) as session:
+        # construct graph for this session
+        g = Graph().parse(session, publicID="{0}/sessions/{1}".format(baseuri,sessionid), format="turtle")
+    try:
+        annoid = "{0}/annotations/{1}".format(baseuri, uuid())
+        h = Graph().parse(data=request.data, publicID=annoid, format="turtle")
+    except Exception as e: 
+        print e
+        abort(400) # bad request - can't interpret request data
+    # link annotation graph into session graph
+    g.add((
+        URIRef("{0}/sessions/{1}".format(baseuri, sessionid)),
+        URIRef("http://www.w3.org/ns/ldp#contains"),
+        URIRef(annoid)
+    ))
+    # and merge them
+    g = g + h
+    # now add references to the new annotation into each RELEVANT sessionPerformerContext
+    # where RELEVANT == is annotation audience. If no audience specified, relevant to ALL.
+    
+    audienceGenerator = g.triples(( 
+        URIRef(annoid),
+        URIRef("http://schema.org/audience"),
+        None
+    ))
+
+    for (s, p, o) in audienceGenerator:
+        print s, " ", p, " ", o
+
+    # if there are audiences...
+    if peek(audienceGenerator):
+        print "Have audience"
+        for _s, _p, audience in audienceGenerator:
+            # find the audience performer roles...
+            print "Audience: ", audience
+            for __s, __p, role in g.triples((
+                audience,
+                URIRef("http://meld.linkedmusic.org/terms/performerRole"),
+                None
+            )):
+                print "Context: ", context
+                # reference the annotation from any relevant sessionPerformerContext
+                for context, ___p, ___o in g.triples((
+                    None, 
+                    URIRef("http://meld.linkedmusic.org/terms/performerRole"),
+                    role
+                )):
+                    g = trackSessionPerformerAnnotationState(g, context, annoid)
+    else:
+        # otherwise, do it for every sessionPerformerContext
+        for context, _p, _o in g.triples((
+            None, 
+            URIRef("http://meld.linkedmusic.org/terms/performerRole"),
+            None
+        )):
+            g = trackSessionPerformerAnnotationState(g, context, annoid)
+    print "PONG"
+    tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
+    with open(tmpFile, 'w') as tmp:
+        tmp.write(g.serialize(format="turtle"))
+    # check etag of session file one more time...
+    new_etag = calculateETag(sessionFile)
+    if file_etag != new_etag:
+        abort(412) # precondition failed - file changed while we were handling the request!
+    # atomically overwrite old session file with new tmp file
+    os.rename(tmpFile, sessionFile)
+    r = make_response("",201)
+    r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
+    r.headers.add("ETag", file_etag)
+    return r
 
 
 def calculateETag(theFile):
@@ -485,3 +566,32 @@ def calculateETag(theFile):
         m.update(str(stats.st_mtime))
         return  m.hexdigest()
 
+def trackSessionPerformerAnnotationState(g, context, annoid):
+    # create the in-context annotation state tracking BNode
+    ctxBNode = BNode()
+    # hook in the reference to annoid, and the actionRequired state
+    g.add((
+        context, 
+        URIRef("http://meld.linkedmusic.org/terms/hasAnnotationState"),
+        ctxBNode
+    ))
+    g.add((
+        ctxBNode, 
+        URIRef("http://meld.linkedmusic.org/terms/annotationId"),
+        URIRef(annoid)
+    ))
+    g.add((
+        ctxBNode, 
+        URIRef("http://meld.linkedmusic.org/terms/actionStatus"),
+        URIRef("http://meld.linkedmusic.org/terms/ActionRequired")
+    ))
+    print g.serialize(format="turtle")
+    return g
+
+def peek(iterable):
+    # helper function: check if iterable (coming out of graph query) has any content
+    try: 
+        first = next(iterable)
+    except StopIteration:
+        return None
+    return first, itertools.chain([first], iterable)
