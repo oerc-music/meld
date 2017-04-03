@@ -472,7 +472,6 @@ def joinSession(sessionid):
 @main.route("/sessions/<sessionid>", methods=["POST"])
 #TODO refactor (boilerplate duplication with joinSession)
 def createSessionAnnotation(sessionid):
-    print "PING"
     contentType = request.headers.get('Content-Type')
     req_etags = request.headers.get('If-None-Match')
     sessionFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
@@ -511,21 +510,19 @@ def createSessionAnnotation(sessionid):
         None
     ))
 
+    #TODO figure out why removing this for loop breaks performer session context attribution
     for (s, p, o) in audienceGenerator:
         print s, " ", p, " ", o
 
     # if there are audiences...
     if peek(audienceGenerator):
-        print "Have audience"
         for _s, _p, audience in audienceGenerator:
             # find the audience performer roles...
-            print "Audience: ", audience
             for __s, __p, role in g.triples((
                 audience,
                 URIRef("http://meld.linkedmusic.org/terms/performerRole"),
                 None
             )):
-                print "Context: ", context
                 # reference the annotation from any relevant sessionPerformerContext
                 for context, ___p, ___o in g.triples((
                     None, 
@@ -541,7 +538,6 @@ def createSessionAnnotation(sessionid):
             None
         )):
             g = trackSessionPerformerAnnotationState(g, context, annoid)
-    print "PONG"
     tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
     with open(tmpFile, 'w') as tmp:
         tmp.write(g.serialize(format="turtle"))
@@ -585,7 +581,6 @@ def trackSessionPerformerAnnotationState(g, context, annoid):
         URIRef("http://meld.linkedmusic.org/terms/actionStatus"),
         URIRef("http://meld.linkedmusic.org/terms/ActionRequired")
     ))
-    print g.serialize(format="turtle")
     return g
 
 def peek(iterable):
