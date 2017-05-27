@@ -441,23 +441,16 @@ def joinSession(sessionid):
         # construct graph for this session
         g = Graph().parse(session, publicID="{0}/sessions/{1}".format(baseuri,sessionid), format="turtle")
     try:
-        sessionPerformerUri ="{0}/sessions/{1}/{2}".format(baseuri,sessionid, uuid())
         # construct sub-graph supplied by request
-        h = Graph().parse(publicID=sessionPerformerUri, data=request.data, format=contentType)
+        h = Graph().parse(publicID="{0}/sessions/{1}".format(baseuri,sessionid), data=request.data, format=contentType)
     except Exception as e: 
         print e
         abort(400) # bad request - can't interpret request data
-    # link the sub-graph into our session graph
-    g.add(( 
-        URIRef("{0}/sessions/{1}".format(baseuri, sessionid)), 
-        URIRef("http://meld.linkedmusic.org/terms/hasSessionPerformerContext"),
-        URIRef(sessionPerformerUri)
-    ))
     # and merge them
     g = g + h
     tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
     with open(tmpFile, 'w') as tmp:
-        tmp.write(g.serialize(format="turtle"))
+        tmp.write(g.serialize(format="turtle", publicID="{0}/sessions/{1}".format(baseuri, sessionid)))
     # check etag of session file one more time...
     new_etag = calculateETag(sessionFile)
     if file_etag != new_etag:

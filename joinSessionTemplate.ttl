@@ -1,9 +1,12 @@
 PREFIX meldterm: <http://meld.linkedmusic.org/terms/>
 PREFIX mp: <http://id.loc.gov/authorities/performanceMediums/>
 PREFIX mo: <http://purl.org/ontology/mo/>
-PREFIX mmtrole: <http://mmt.linkedmusic.org/roles/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX popRole: <http://meld.linkedmusic.org/popterms/role/>
 
-<> a meldterm:SessionPerformerContext; 
-	mo:performer <http://meld.linkedmusic.org/performers/Bob> ;
-	meldterm:performerRole mmtrole:Lead ;
-	mo:primary_instrument mp:mp2013015239 .
+
+<> prov:qualifiedAssociation [
+		a prov:Association ;
+		prov:wasAssociatedWith <http://meld.linkedmusic.org/performers/Bob> ;
+		prov:hadRole popRole:Lead 
+	] .
