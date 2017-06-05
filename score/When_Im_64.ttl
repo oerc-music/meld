@@ -1,0 +1,15 @@
+PREFIX meld: <http://meld.linkedmusic.org/terms/>
+PREFIX so: <http://www.linkedmusic.org/ontologies/segment/>
+PREFIX score: <http://127.0.0.1/score/>
+PREFIX struct: <http://127.0.0.1/structure/>
+PREFIX frbr: <http://purl.org/vocab/frbr/core#>
+PREFIX mo: <http://purl.org/ontology/mo/>
+PREFIX prov:    <http://www.w3.org/ns/prov#> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+score:When_Im_64 a mo:Score, frbr:Expression ;
+	rdfs:label "'When I'm Sixty-Four' by The Beatles" ;
+	frbr:realizationOf <http://dbpedia.org/resource/When_I'm_Sixty-Four>;
+	mo:published_as <http://127.0.0.1/mei/When_Im_64.mei> ;
+	meld:hasStructure struct:When_Im_64 .

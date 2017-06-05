@@ -364,7 +364,7 @@ def getSessions():
     with open(sessionsFile) as session:
         g = Graph().parse(session, publicID="{0}/sessions".format(baseuri), format="turtle")
         # TODO return as best mimetype
-        r = make_response(g.serialize(format="turtle"), 200)
+        r = make_response(g.serialize(format="nt"), 200)
         # add etag to headers
         r.headers.add("ETag", file_etag)
         return r
@@ -417,7 +417,7 @@ def getSession(sessionid):
     with open(sessionsFile) as session:
         g = Graph().parse(session, publicID="{0}/sessions/{1}.ttl".format(baseuri,sessionid), format="turtle")
     # TODO return as best mimetype
-    r = make_response(g.serialize(format="turtle"), 200)
+    r = make_response(g.serialize(format="nt"), 200)
     # add etag to headers
     r.headers.add("ETag", file_etag)
     return r

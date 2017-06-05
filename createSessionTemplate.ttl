@@ -3,5 +3,5 @@ PREFIX mo: <http://purl.org/ontology/mo/>
 PREFIX ldp: <http://www.w3.org/ns/ldp#>
 
 <> a mo:Performance , ldp:BasicContainer ;
-    mo:performance_of <http://meld.linkedmusic.org/score/WhenIm64> .
+    mo:performance_of <http://127.0.0.1/score/WhenIm64> .
 	

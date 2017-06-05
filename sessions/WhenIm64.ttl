@@ -1,0 +1,27 @@
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix meldterm: <http://meld.linkedmusic.org/terms/> .
+@prefix mmtrole: <http://mmt.linkedmusic.org/roles/> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix mp: <http://id.loc.gov/authorities/performanceMediums/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix popRole: <http://meld.linkedmusic.org/popterms/role/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://127.0.0.1:5000/sessions/WhenIm64> a mo:Performance,
+        ldp:BasicContainer ;
+    meldterm:joinSession <http://127.0.0.1:5000/sessions/WhenIm64/join> ;
+    mo:performance_of <http://127.0.0.1/score/When_Im_64> ;
+    ldp:contains <http://127.0.0.1:5000/annotations/PfvbBKujjDyjzBs9tK8Jof> ;
+    prov:qualifiedAssociation [ a prov:Association ;
+            prov:hadRole popRole:Lead ;
+            prov:wasAssociatedWith <http://meld.linkedmusic.org/performers/Bob> ] .
+
+<http://127.0.0.1:5000/annotations/PfvbBKujjDyjzBs9tK8Jof> a oa:Annotation ;
+    oa:hasTarget <http://127.0.0.1/structure/When_Im_64#Intro> ;
+    oa:motivatedBy oa:highlighting .
+

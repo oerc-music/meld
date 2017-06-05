@@ -6,7 +6,5 @@ PREFIX schema: <http://schema.org/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
 
 <> a oa:Annotation ;
-	schema:audience [ 
-		a mo:Performer ;
-		meldterm:performerRole mmtrole:Lead 
-	] .
+	oa:hasTarget <http://127.0.0.1/structure/When_Im_64#Intro> ;
+	oa:motivatedBy oa:highlighting .

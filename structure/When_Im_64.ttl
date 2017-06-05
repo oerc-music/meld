@@ -1,0 +1,85 @@
+PREFIX meld: <http://meld.linkedmusic.org/terms/>
+PREFIX so: <http://www.linkedmusic.org/ontologies/segment/>
+PREFIX score: <http://meld.linkedmusic.org/score/>
+PREFIX struct: <http://127.0.0.1/structure/>
+PREFIX frbr: <http://purl.org/vocab/frbr/core#>
+PREFIX mo: <http://purl.org/ontology/mo/>
+PREFIX prov:    <http://www.w3.org/ns/prov#> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+struct:When_Im_64 a so:SegmentLine, frbr:Expression .
+
+<http://127.0.0.1/structure/When_Im_64#Intro> a so:Segment ;
+	so:segmentAfter <http://127.0.0.1/structure/When_Im_64#Verse1> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag , meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000140943779> , 
+			<http://127.0.0.1/mei/When_Im_64.mei#measure-000000090556540> , 
+			<http://127.0.0.1/mei/When_Im_64.mei#measure-000000135996743> , 
+			<http://127.0.0.1/mei/When_Im_64.mei#measure-000000122975024> ,
+			<http://127.0.0.1/mei/When_Im_64.mei#measure-000000066104444> , 
+			<http://127.0.0.1/mei/When_Im_64.mei#measure-000000100415059> ;
+		meld:startsWith	<http://127.0.0.1/mei/When_Im_64.mei#measure-000000140943779> ;
+		meld:endsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000100415059> 
+	] .
+	
+<http://127.0.0.1/structure/When_Im_64#Verse1> a so:Segment ;
+	so:segmentBefore <http://127.0.0.1/structure/When_Im_64#Intro> ;
+	so:segmentAfter <http://127.0.0.1/structure/When_Im_64#Chorus1> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000186945794> ;
+		meld:startsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000186945794> 
+	] .
+
+<http://127.0.0.1/structure/When_Im_64#Chorus1> a so:Segment ;
+	so:segmentBefore <http://127.0.0.1/structure/When_Im_64#Verse1> ;
+	so:segmentAfter <http://127.0.0.1/structure/When_Im_64#Verse2> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000114868358> ;
+		meld:startsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000114868358> 
+	] .
+
+<http://127.0.0.1/structure/When_Im_64#Verse2> a so:Segment ;
+	so:segmentBefore <http://127.0.0.1/structure/When_Im_64#Chorus1> ;
+	so:segmentAfter <http://127.0.0.1/structure/When_Im_64#Chorus2> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000161136992> ;
+		meld:startsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000161136992> ;
+	] .
+
+<http://127.0.0.1/structure/When_Im_64#Chorus2> a so:Segment ;
+	so:segmentBefore <http://127.0.0.1/structure/When_Im_64#Verse2> ;
+	so:segmentAfter <http://127.0.0.1/structure/When_Im_64#Verse3> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+    	rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000196237136> ;
+    	meld:startsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000196237136> ;
+	] .
+
+<http://127.0.0.1/structure/When_Im_64#Verse3> a so:Segment ;
+	so:segmentBefore <http://127.0.0.1/structure/When_Im_64#Chorus2> ;
+	so:segmentAfter <http://127.0.0.1/structure/When_Im_64#Outro> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+    	rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000132820916> ;
+    	meld:startsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000132820916> ;
+	] .
+
+<http://127.0.0.1/structure/When_Im_64#Outro> a so:Segment ;
+	so:segmentBefore <http://127.0.0.1/structure/When_Im_64#Verse3> ;
+	so:onSegmentLine struct:When_Im_64 ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1/mei/When_Im_64.mei#measure-000000058105559> ;
+		meld:startsWith <http://127.0.0.1/mei/When_Im_64.mei#measure-000000058105559> ;
+	] .

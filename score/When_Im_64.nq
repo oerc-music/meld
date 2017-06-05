@@ -1,0 +1,6 @@
+<http://127.0.0.1/score/When_Im_64> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/mo/Score> .
+<http://127.0.0.1/score/When_Im_64> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/vocab/frbr/core#Expression> .
+<http://127.0.0.1/score/When_Im_64> <http://www.w3.org/2000/01/rdf-schema#label> "'When I'm Sixty-Four' by The Beatles" .
+<http://127.0.0.1/score/When_Im_64> <http://purl.org/vocab/frbr/core#realizationOf> <http://dbpedia.org/resource/When_I'm_Sixty-Four> .
+<http://127.0.0.1/score/When_Im_64> <http://purl.org/ontology/mo/published_as> <http://127.0.0.1/mei/When_Im_64.mei> .
+<http://127.0.0.1/score/When_Im_64> <http://meld.linkedmusic.org/terms/hasStructure> <http://127.0.0.1/structure/When_Im_64> .
