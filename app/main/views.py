@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, current_app, abort, make_response, send_file, jsonify
+from flask import render_template, request, redirect, url_for, current_app, abort, make_response, send_file, jsonify, send_from_directory
 from config import basedir, baseuri, meibaseuri, muzicodesuri, basecamp_mei_file
 from pprint import pprint
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -20,12 +20,12 @@ from . import main
 def best_mimetype():
     best = request.accept_mimetypes.best_match( \
         ["application/rdf+xml", "text/n3", "text/turtle", "application/n-triples", \
-        "application/json", "text/html"])
+        "application/json", "application/ld+json", "text/html"])
     if not best: 
         abort(406) # unacceptable
     # browser might accept on */*, in which case we should probably deliver html
-    if request.accept_mimetypes[best] == request.accept_mimetypes["text/html"]:
-        best = "text/html"
+#    if request.accept_mimetypes[best] == request.accept_mimetypes["text/html"]:
+#        best = "text/html"
     return best
 
 
@@ -399,11 +399,34 @@ def createSession():
     r.headers.add("Location", sessionsUri + pubId)
     return r
 
+
+@main.route("/score/<scoreFile>", methods=["GET"])
+# return the score triples
+def getScore(scoreFile):
+    with open("{0}/score/{1}.ttl".format(basedir, scoreFile)) as score:
+        g = Graph().parse(score, format="turtle")
+    best = best_mimetype()
+    if best == 'application/ld+json' or best == 'application/json':
+        r = make_jsonld_response(g, "{0}/score/{1}".format(baseuri, scoreFile))
+        # TODO return as best mimetype, not just turtle or jsonld
+    else: 
+        r = make_response(g.serialize(format="turtle"), 200)
+    return r
+
+@main.route("/mei/<meiFile>", methods=["GET"])
+# return the score triples
+def getMEI(meiFile):
+    with open("{0}/mei/{1}".format(basedir, meiFile)) as mei:
+        r = make_response(mei.read(), 200)
+    r.headers["Content-Type"] = "application/mei+xml"
+    return r
+
 @main.route("/sessions/<sessionid>", methods=["GET"])
 # returns the session
 def getSession(sessionid):
     req_etags = request.headers.get('If-None-Match')
     sessionsFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
+    best = best_mimetype()
     # calculate file etag
     # see if it's in any of the req_etags. If so, return 304. 
     try:
@@ -416,8 +439,12 @@ def getSession(sessionid):
     # with statement below!!
     with open(sessionsFile) as session:
         g = Graph().parse(session, publicID="{0}/sessions/{1}.ttl".format(baseuri,sessionid), format="turtle")
-    # TODO return as best mimetype
-    r = make_response(g.serialize(format="turtle"), 200)
+    if best == 'application/ld+json' or best == 'application/json': 
+        # frame and return as JSON-LD
+        r = make_jsonld_response(g, "{0}/sessions/{1}".format(baseuri, sessionid))
+    else: 
+        # TODO return as best mimetype, not just turtle or jsonld
+        r = make_response(g.serialize(format="turtle"), 200)
     # add etag to headers
     r.headers.add("ETag", file_etag)
     return r
@@ -590,3 +617,19 @@ def peek(iterable):
     except StopIteration:
         return None
     return first, itertools.chain([first], iterable)
+
+def make_jsonld_response(graph, publicuri):
+    # take a rdflib graph, return a response containing a jsonld representation
+    # applying the MELD context and framed placing publicuri at root
+    raw_json = json.loads(graph.serialize(format="json-ld", indent=2))
+    frame = {
+        "@context": {
+            "meld": "http://meld.linkedmusic.org/terms/",
+            "mo": "http://purl.org/ontology/mo/",
+            "ldp": "http://www.w3.org/ns/ldp#",
+            "mp": "http://id.loc.gov/authorities/performanceMediums/",
+            "popRoles": "http://pop.linkedmusic.org/roles/"
+        },
+        "@id": publicuri
+    }
+    return make_response(json.dumps(jsonld.frame(raw_json, frame)), 200)
