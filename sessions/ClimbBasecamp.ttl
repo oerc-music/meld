@@ -1,0 +1,22 @@
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix meld: <http://meld.linkedmusic.org/terms/> .
+@prefix meldterm: <http://meld.linkedmusic.org/terms/> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix motivation: <http://meld.linkedmusic.org/motivation/> .
+@prefix mp: <http://id.loc.gov/authorities/performanceMediums/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix popRoles: <http://pop.linkedmusic.org/roles/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://127.0.0.1:5000/annotations/P756gLY8vPMTGfhoEYHhHj> oa:hasTarget <http://127.0.0.1:5000/sessions/ClimbBasecamp> ;
+    oa:motivatedBy motivation:nextPageOrPiece .
+
+<http://127.0.0.1:5000/sessions/ClimbBasecamp> a mo:Performance,
+        ldp:BasicContainer ;
+    meld:joinSession <http://127.0.0.1:5000/sessions/ClimbBasecamp/join> ;
+    mo:performance_of <http://127.0.0.1:5000/score/ClimbBasecamp> ;
+    ldp:contains <http://127.0.0.1:5000/annotations/P756gLY8vPMTGfhoEYHhHj> .
+

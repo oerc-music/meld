@@ -17,6 +17,7 @@ import itertools
 
 from . import main
 
+
 def best_mimetype():
     best = request.accept_mimetypes.best_match( \
         ["application/rdf+xml", "text/n3", "text/turtle", "application/n-triples", \
@@ -383,8 +384,13 @@ def createSession():
             pubId = slug 
     else:
         pubId = uuid() 
+
+    print contentType
     try: 
-        g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format=contentType)
+        if contentType == "application/json" or contentType == "application/ld+json":
+            g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format="json-ld")
+        else:
+            g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format=contentType)
     except Exception as e: 
         print e
         abort(400)
@@ -433,6 +439,7 @@ def getSession(sessionid):
         file_etag = calculateETag(sessionsFile)
     except:
         abort(404)
+    print "got {0} and {1}".format(req_etags, file_etag)
     if req_etags and file_etag in req_etags:
         return make_response("", 304)
     #FIXME note race condition if file changes between the etag check and the end of the
@@ -516,7 +523,24 @@ def createSessionAnnotation(sessionid):
         g = Graph().parse(session, publicID="{0}/sessions/{1}".format(baseuri,sessionid), format="turtle")
     try:
         annoid = "{0}/annotations/{1}".format(baseuri, uuid())
-        h = Graph().parse(data=request.data, publicID=annoid, format="turtle")
+        if contentType == 'application/ld+json' or contentType == 'application/json':
+            context = json.loads('''
+              {
+                "popRoles": "http://pop.linkedmusic.org/roles/", 
+                "mo": "http://purl.org/ontology/mo/", 
+                "ldp": "http://www.w3.org/ns/ldp#", 
+                "mp": "http://id.loc.gov/authorities/performanceMediums/", 
+                "oa": "http://www.w3.org/ns/oa#",
+                "meld": "http://meld.linkedmusic.org/terms/",
+                "motivation": "http://meld.linkedmusic.org/motivation/"
+              }
+            ''')
+            annojson = json.loads(request.data)
+            annojson["@context"] = context
+            annojson["@id"] = annoid
+            h = Graph().parse(data=json.dumps(annojson), format="json-ld")
+        else:
+            h = Graph().parse(data=request.data, publicID=annoid, format="turtle")
     except Exception as e: 
         print e
         abort(400) # bad request - can't interpret request data
@@ -624,11 +648,13 @@ def make_jsonld_response(graph, publicuri):
     raw_json = json.loads(graph.serialize(format="json-ld", indent=2))
     frame = {
         "@context": {
+            "popRoles": "http://pop.linkedmusic.org/roles/", 
+            "mo": "http://purl.org/ontology/mo/", 
+            "ldp": "http://www.w3.org/ns/ldp#", 
+            "mp": "http://id.loc.gov/authorities/performanceMediums/", 
+            "oa": "http://www.w3.org/ns/oa#",
             "meld": "http://meld.linkedmusic.org/terms/",
-            "mo": "http://purl.org/ontology/mo/",
-            "ldp": "http://www.w3.org/ns/ldp#",
-            "mp": "http://id.loc.gov/authorities/performanceMediums/",
-            "popRoles": "http://pop.linkedmusic.org/roles/"
+            "motivation": "http://meld.linkedmusic.org/motivation/"
         },
         "@id": publicuri
     }

@@ -4,5 +4,6 @@
 <> a ldp:Container, ldp:BasicContainer ;
     dcterms:title "MELD sessions" .
 
-<> ldp:contains <http://127.0.0.1:5000/sessions/hello> .
-<> ldp:contains <http://127.0.0.1:5000/sessions/test> .
+
+
+<> ldp:contains <http://127.0.0.1:5000/sessions/ClimbBasecamp> .
