@@ -604,6 +604,73 @@ def createSessionAnnotation(sessionid):
     return r
 
 
+@main.route("/sessions/<sessionid>", methods=["PATCH"])
+#TODO refactor boilerplat
+def patchSessionAnnotation(sessionid):
+    print "GOT PATCH REQUEST"
+    contentType = request.headers.get('Content-Type')
+    req_etags = request.headers.get('If-None-Match')
+    sessionFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
+    if not req_etags:
+        print "If-None-Match (etag) missing"
+        abort(400) # must include an etag when attempting to join session
+    try:
+        file_etag = calculateETag(sessionFile)
+    except:
+        abort(404) # requested sessions file (and thus, session) doesn't exist
+    if file_etag not in req_etags:
+        return abort(412) # precondition failed - client working with an outdated session
+    with open(sessionFile) as session:
+        # construct graph for this session
+        g = Graph().parse(session, publicID="{0}/sessions/{1}".format(baseuri,sessionid), format="turtle")
+    if contentType == 'application/ld+json' or contentType == 'application/json':
+        patchjson = json.loads(request.data)
+        frame = {
+            "@context": {
+                "popRoles": "http://pop.linkedmusic.org/roles/", 
+                "mo": "http://purl.org/ontology/mo/", 
+                "ldp": "http://www.w3.org/ns/ldp#", 
+                "mp": "http://id.loc.gov/authorities/performanceMediums/", 
+                "oa": "http://www.w3.org/ns/oa#",
+                "meld": "http://meld.linkedmusic.org/terms/",
+                "motivation": "http://meld.linkedmusic.org/motivation/"
+            },
+            "@id": "{0}/sessions/{1}".format(baseuri, sessionid)
+        }
+        graphjson = json.loads(g.serialize(format="json-ld", indent=2))
+        framedjson = jsonld.frame(graphjson, frame)
+        # rdflib json-ld bug:
+        # parsing json-ld only works when there is a "@context" and then an entity with @id (e.g. session)
+        # parsing does NOT work when there is a @context and @graph parallel structure
+        # TODO report / investigate why
+        # for now, just promote the session entity up from [@graph][0]
+        session = framedjson["@graph"][0]
+        session["@context"] = framedjson["@context"]
+        session = ensureList(session, "ldp:contains")
+        # if we can find the annotation id in the ldp:contains items, patch it 
+        # should probably a more pythonic way to do this...
+
+        for anno in session["ldp:contains"]:
+            if anno["@id"] == patchjson["@id"]:
+                anno["meld:state"] = patchjson["meld:state"]
+        j = Graph().parse(data=json.dumps(session), format="json-ld")
+        tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
+        with open(tmpFile, 'w') as tmp:
+            tmp.write(j.serialize(format="turtle"))
+        # check etag of session file one more time...
+        new_etag = calculateETag(sessionFile)
+        if file_etag != new_etag:
+            abort(412) # precondition failed - file changed while we were handling the request!
+        # atomically overwrite old session file with new tmp file
+        os.rename(tmpFile, sessionFile)
+        r = make_response("",200)
+        r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
+        r.headers.add("ETag", file_etag)
+        return r
+    else:
+        abort(415) # unsupported media type -- for now, we only care about json-ld patches
+
+
 def calculateETag(theFile):
 	# helper function: calculate ETag in a consistent way
         # currently: hash of size + last modified
@@ -611,7 +678,7 @@ def calculateETag(theFile):
         m = md5.new()
         m.update(str(stats.st_size))
         m.update(str(stats.st_mtime))
-        return  m.hexdigest()
+        return  "W/"+m.hexdigest()
 
 def trackSessionPerformerAnnotationState(g, context, annoid):
     # create the in-context annotation state tracking BNode
@@ -659,3 +726,15 @@ def make_jsonld_response(graph, publicuri):
         "@id": publicuri
     }
     return make_response(json.dumps(jsonld.frame(raw_json, frame)), 200)
+
+def ensureList(theObj, theKey):
+    if not theKey in theObj:
+        print "ensureList: KEY NOT IN OBJECT"
+        pprint(theKey)
+        pprint(theObj)
+    else:
+        if not isinstance(theObj[theKey], list):
+            theObj[theKey] = [theObj[theKey]]
+    return theObj
+
+    

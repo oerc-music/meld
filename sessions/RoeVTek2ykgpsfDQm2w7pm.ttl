@@ -1,0 +1,13 @@
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix meldterm: <http://meld.linkedmusic.org/terms/> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://meld.linkedmusic.org/sessions/RoeVTek2ykgpsfDQm2w7pm> a mo:Performance,
+        ldp:BasicContainer ;
+    meldterm:joinSession <http://meld.linkedmusic.org/sessions/RoeVTek2ykgpsfDQm2w7pm/join> ;
+    mo:performance_of <http://meld.linkedmusic.org/works/WhenIm64> .
+
