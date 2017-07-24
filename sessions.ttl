@@ -6,4 +6,4 @@
 
 
 
-<> ldp:contains <http://127.0.0.1:5000/sessions/ClimbBasecamp> .
+<> ldp:contains <http://127.0.0.1:5000/sessions/ClimbBaseCamp> .

@@ -11,12 +11,12 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://127.0.0.1:5000/annotations/P756gLY8vPMTGfhoEYHhHj> oa:hasTarget <http://127.0.0.1:5000/sessions/ClimbBasecamp> ;
+<http://127.0.0.1:5000/annotations/wqLuo9JNZULMgRLznNNjfW> oa:hasTarget <http://127.0.0.1:5000/sessions/Climb1aTheAngryDeer> ;
     oa:motivatedBy motivation:nextPageOrPiece .
 
-<http://127.0.0.1:5000/sessions/ClimbBasecamp> a mo:Performance,
+<http://127.0.0.1:5000/sessions/Climb1aTheAngryDeer> a mo:Performance,
         ldp:BasicContainer ;
-    meld:joinSession <http://127.0.0.1:5000/sessions/ClimbBasecamp/join> ;
-    mo:performance_of <http://127.0.0.1:5000/score/ClimbBasecamp> ;
-    ldp:contains <http://127.0.0.1:5000/annotations/P756gLY8vPMTGfhoEYHhHj> .
+    meld:joinSession <http://127.0.0.1:5000/sessions/Climb1aTheAngryDeer/join> ;
+    mo:performance_of <http://127.0.0.1:5000/score/Climb1aTheAngryDeer> ;
+    ldp:contains <http://127.0.0.1:5000/annotations/wqLuo9JNZULMgRLznNNjfW> .
 

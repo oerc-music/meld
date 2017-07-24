@@ -1,0 +1,5 @@
+{
+	"oa:hasTarget": { "@id": "http://example.com/sessions/currentSession" }, 
+	"oa:hasBody": { "@id": "http://example.com/sessions/nextSession" },
+	"oa:motivation": { "@id": "motivation:queueNextSession" }
+}
