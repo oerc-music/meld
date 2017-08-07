@@ -385,10 +385,24 @@ def createSession():
     else:
         pubId = uuid() 
 
-    print contentType
     try: 
         if contentType == "application/json" or contentType == "application/ld+json":
-            g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format="json-ld")
+            context = json.loads('''
+              {
+                "popRoles": "http://pop.linkedmusic.org/roles/", 
+                "mo": "http://purl.org/ontology/mo/", 
+                "ldp": "http://www.w3.org/ns/ldp#", 
+                "mp": "http://id.loc.gov/authorities/performanceMediums/", 
+                "oa": "http://www.w3.org/ns/oa#",
+                "dct": "http://purl.org/dc/terms/",
+                "meld": "http://meld.linkedmusic.org/terms/",
+                "motivation": "http://meld.linkedmusic.org/motivation/"
+              }
+            ''')
+            sessionjson = json.loads(request.data)
+            sessionjson["@context"] = context
+            sessionjson["@id"] = sessionsUri + pubId
+            g = Graph().parse(data=json.dumps(sessionjson), format="json-ld")
         else:
             g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format=contentType)
     except Exception as e: 
@@ -403,7 +417,10 @@ def createSession():
         sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
     with open("{0}/sessions/{1}.ttl".format(basedir, pubId), "w") as sessionFile:
         sessionFile.write(g.serialize(format="text/turtle"));
-    r = make_response(g.serialize(format=contentType), 201)
+    if contentType == "application/ld+json" or contentType == "application/json":
+        r = make_jsonld_response(g, sessionsUri + pubId, 201)
+    else: 
+        r = make_response(g.serialize(format=contentType), 201)
     r.headers.add("Location", sessionsUri + pubId)
     return r
 
@@ -415,7 +432,7 @@ def getScore(scoreFile):
         g = Graph().parse(score, format="turtle")
     best = best_mimetype()
     if best == 'application/ld+json' or best == 'application/json':
-        r = make_jsonld_response(g, "{0}/score/{1}".format(baseuri, scoreFile))
+        r = make_jsonld_response(g, "{0}/score/{1}".format(baseuri, scoreFile), 200)
         # TODO return as best mimetype, not just turtle or jsonld
     else: 
         r = make_response(g.serialize(format="turtle"), 200)
@@ -450,7 +467,7 @@ def getSession(sessionid):
         g = Graph().parse(session, publicID="{0}/sessions/{1}.ttl".format(baseuri,sessionid), format="turtle")
     if best == 'application/ld+json' or best == 'application/json': 
         # frame and return as JSON-LD
-        r = make_jsonld_response(g, "{0}/sessions/{1}".format(baseuri, sessionid))
+        r = make_jsonld_response(g, "{0}/sessions/{1}".format(baseuri, sessionid), 200)
     else: 
         # TODO return as best mimetype, not just turtle or jsonld
         r = make_response(g.serialize(format="turtle"), 200)
@@ -715,7 +732,7 @@ def peek(iterable):
         return None
     return first, itertools.chain([first], iterable)
 
-def make_jsonld_response(graph, publicuri):
+def make_jsonld_response(graph, publicuri, status):
     # take a rdflib graph, return a response containing a jsonld representation
     # applying the MELD context and framed placing publicuri at root
     raw_json = json.loads(graph.serialize(format="json-ld", indent=2))
@@ -733,7 +750,7 @@ def make_jsonld_response(graph, publicuri):
         },
         "@id": publicuri
     }
-    return make_response(json.dumps(jsonld.frame(raw_json, frame)), 200)
+    return make_response(json.dumps(jsonld.frame(raw_json, frame)), status)
 
 def ensureList(theObj, theKey):
     if not theKey in theObj:
