@@ -396,6 +396,8 @@ def createSession():
         abort(400)
     # add in links to this session's "join session" and "create session annotation"(??) URIs 
     g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/joinSession"), URIRef(sessionsUri+pubId+"/join")))
+    # add in the created timestamp for this session
+    g.add((URIRef(sessionsUri+pubId), URIRef("http://purl.org/dc/terms/created"), Literal(datetime.now().isoformat())))
     # g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/createSessionAnnotation"), URIRef(sessionsUri+pubId)))
     with open("{0}/sessions.ttl".format(basedir), "a") as sessionsContainer:
         sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
@@ -531,6 +533,7 @@ def createSessionAnnotation(sessionid):
                 "ldp": "http://www.w3.org/ns/ldp#", 
                 "mp": "http://id.loc.gov/authorities/performanceMediums/", 
                 "oa": "http://www.w3.org/ns/oa#",
+                "dct": "http://purl.org/dc/terms/",
                 "meld": "http://meld.linkedmusic.org/terms/",
                 "motivation": "http://meld.linkedmusic.org/motivation/"
               }
@@ -538,6 +541,7 @@ def createSessionAnnotation(sessionid):
             annojson = json.loads(request.data)
             annojson["@context"] = context
             annojson["@id"] = annoid
+            annojson["dct:created"] = datetime.now().isoformat()
             h = Graph().parse(data=json.dumps(annojson), format="json-ld")
         else:
             h = Graph().parse(data=request.data, publicID=annoid, format="turtle")
@@ -632,6 +636,7 @@ def patchSessionAnnotation(sessionid):
                 "ldp": "http://www.w3.org/ns/ldp#", 
                 "mp": "http://id.loc.gov/authorities/performanceMediums/", 
                 "oa": "http://www.w3.org/ns/oa#",
+                "dct":         "http://purl.org/dc/terms/",
                 "meld": "http://meld.linkedmusic.org/terms/",
                 "motivation": "http://meld.linkedmusic.org/motivation/"
             },
@@ -653,6 +658,7 @@ def patchSessionAnnotation(sessionid):
         for anno in session["ldp:contains"]:
             if anno["@id"] == patchjson["@id"]:
                 anno["meld:state"] = patchjson["meld:state"]
+                anno["dct:modified"] = datetime.now().isoformat()
         j = Graph().parse(data=json.dumps(session), format="json-ld")
         tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
         with open(tmpFile, 'w') as tmp:
@@ -720,8 +726,10 @@ def make_jsonld_response(graph, publicuri):
             "ldp": "http://www.w3.org/ns/ldp#", 
             "mp": "http://id.loc.gov/authorities/performanceMediums/", 
             "oa": "http://www.w3.org/ns/oa#",
+            "frbr": "http://purl.org/vocab/frbr/core#",
             "meld": "http://meld.linkedmusic.org/terms/",
-            "motivation": "http://meld.linkedmusic.org/motivation/"
+            "motivation": "http://meld.linkedmusic.org/motivation/",
+
         },
         "@id": publicuri
     }
