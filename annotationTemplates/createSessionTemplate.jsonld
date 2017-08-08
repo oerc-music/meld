@@ -1,0 +1,4 @@
+{
+  "@type": ["mo:Performance", "ldp:BasicContainer"],
+  "mo:performance_of": { "@id": "http://127.0.0.1:5000/score/ClimbBaseCamp" } 
+}
