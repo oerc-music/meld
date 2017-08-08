@@ -1,4 +1,4 @@
 { 
-	"oa:hasTarget": $CURRENT_SESSION,
-	"oa:motivatedBy": "motivation:nextPageOrPiece"
+	"oa:hasTarget": { "@id": $CURRENT_SESSION },
+	"oa:motivatedBy": { "@id": "motivation:nextPageOrPiece" }
 }
