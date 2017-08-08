@@ -1,0 +1,40 @@
+[
+	{
+		"scoreId": "Test1",
+		"mei": "http://127.0.0.1:5000/mei/BaseCamp.mei",
+		"muzicodes": [
+			{
+				"muzicodeId": "Choice1",
+				"meiElements": [ "measure-000000198506034" ]
+			},
+			{ 
+				"muzicodeId": "Choice2",
+				"meiElements": [ "measure-000000198506034", "measure-000000096586158" ]
+			},
+			{ 
+				"muzicodeId": "Choice3",
+				"meiElements": [ "measure-000000077376722" ]
+
+			}
+		]
+	},
+	{
+		"scoreId": "Test2",
+		"mei": "http://127.0.0.1:5000/mei/Testing.mei",
+		"muzicodes": [
+			{
+				"muzicodeId": "Choice1",
+				"meiElements": [ "measure-TEST" ]
+			},
+			{ 
+				"muzicodeId": "Choice2",
+				"meiElements": [ "measure-000000198506034", "measure-000000096586158" ]
+			},
+			{ 
+				"muzicodeId": "Choice3",
+				"meiElements": [ "measure-000000077376722" ]
+
+			}
+		]
+	}
+]
