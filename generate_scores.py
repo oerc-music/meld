@@ -41,8 +41,13 @@ if __name__ == "__main__":
                 meiElements.append({"@id": score["mei"] + "#" + meiElement})
             muzicodes.append({
                 "@id": scoreuri + score["scoreId"] + "#" + muzicode["muzicodeId"],
-                "@type": ["rdf:Bag", "meld:MEIEmbodiment"],
-                "rdfs:member": meiElements
+                "@type": ["frbr:Expression", "meld:muzicode"],
+                "frbr:partOf": scoreuri + score["scoreId"],
+                "frbr:embodiment": {
+                    "@type": ["rdf:Bag", "meld:MEIEmbodiment"],
+                    "rdfs:member": meiElements,
+                    "rdfs:label": muzicode["description"]
+                }
             })
         thisScore = {
             "@context": context,
