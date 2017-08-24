@@ -395,6 +395,8 @@ def createSession():
                 "mp": "http://id.loc.gov/authorities/performanceMediums/", 
                 "oa": "http://www.w3.org/ns/oa#",
                 "dct": "http://purl.org/dc/terms/",
+                "frbr": "http://purl.org/vocab/frbr/core#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
                 "meld": "http://meld.linkedmusic.org/terms/",
                 "motivation": "http://meld.linkedmusic.org/motivation/"
               }
@@ -744,9 +746,10 @@ def make_jsonld_response(graph, publicuri, status):
             "mp": "http://id.loc.gov/authorities/performanceMediums/", 
             "oa": "http://www.w3.org/ns/oa#",
             "frbr": "http://purl.org/vocab/frbr/core#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
             "meld": "http://meld.linkedmusic.org/terms/",
             "motivation": "http://meld.linkedmusic.org/motivation/",
-
+            "dct":         "http://purl.org/dc/terms/"
         },
         "@id": publicuri
     }

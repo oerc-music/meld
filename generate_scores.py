@@ -45,9 +45,9 @@ if __name__ == "__main__":
                 "frbr:partOf": scoreuri + score["scoreId"],
                 "frbr:embodiment": {
                     "@type": ["rdf:Bag", "meld:MEIEmbodiment"],
-                    "rdfs:member": meiElements,
-                    "rdfs:label": muzicode["description"]
-                }
+                    "rdfs:member": meiElements
+                },
+                "rdfs:label": muzicode["description"]
             })
         thisScore = {
             "@context": context,
