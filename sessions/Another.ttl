@@ -1,0 +1,57 @@
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix meld: <http://meld.linkedmusic.org/terms/> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix motivation: <http://meld.linkedmusic.org/motivation/> .
+@prefix mp: <http://id.loc.gov/authorities/performanceMediums/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix popRoles: <http://pop.linkedmusic.org/roles/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://127.0.0.1:5000/annotations/37AYXHKdDz5Gfh9p5aGkg7> meld:state meld:processed ;
+    dct:created "2017-08-25T12:21:36.307839" ;
+    dct:modified "2017-08-25T12:21:36.536916" ;
+    oa:hasTarget <http://127.0.0.1:5000/sessions/Another> ;
+    oa:motivatedBy motivation:nextPageOrPiece .
+
+<http://127.0.0.1:5000/annotations/59pNi9aCRTKhHGAXh8WVGL> dct:created "2017-08-25T11:11:16.027359" ;
+    oa:hasTarget <http://127.0.0.1:5000/score/TEST_BaseCamp#Choice2> ;
+    oa:motivatedBy motivation:muzicodeChoice .
+
+<http://127.0.0.1:5000/annotations/fQtnzwU7jfAokxP5PfccfE> meld:state meld:processed ;
+    dct:created "2017-08-25T11:10:44.504768" ;
+    dct:modified "2017-08-25T11:10:44.686248" ;
+    oa:hasTarget <http://127.0.0.1:5000/sessions/Another> ;
+    oa:motivatedBy motivation:nextPageOrPiece .
+
+<http://127.0.0.1:5000/annotations/jqTjGFG9CmU2CPH3FFt9kG> dct:created "2017-08-25T11:40:07.715812" ;
+    oa:hasTarget <http://127.0.0.1:5000/score/TEST_BaseCamp#Choice1> ;
+    oa:motivatedBy motivation:muzicodeChallengePassed .
+
+<http://127.0.0.1:5000/annotations/oKiYzViHkrnncciyA4V9uU> meld:state meld:processed ;
+    dct:created "2017-08-25T12:21:30.394559" ;
+    dct:modified "2017-08-25T12:21:30.631033" ;
+    oa:hasTarget <http://127.0.0.1:5000/sessions/Another> ;
+    oa:motivatedBy motivation:nextPageOrPiece .
+
+<http://127.0.0.1:5000/annotations/tEKQdkRoeBwY4JV4zmmni2> meld:state meld:processed ;
+    dct:created "2017-08-25T11:42:28.664859" ;
+    dct:modified "2017-08-25T11:42:28.806480" ;
+    oa:hasTarget <http://127.0.0.1:5000/sessions/Another> ;
+    oa:motivatedBy motivation:nextPageOrPiece .
+
+<http://127.0.0.1:5000/sessions/Another> a mo:Performance,
+        ldp:BasicContainer ;
+    meld:joinSession <http://127.0.0.1:5000/sessions/Another/join> ;
+    dct:created "2017-08-25T11:09:42.762155" ;
+    mo:performance_of <http://127.0.0.1:5000/score/TEST_BaseCamp> ;
+    ldp:contains <http://127.0.0.1:5000/annotations/37AYXHKdDz5Gfh9p5aGkg7>,
+        <http://127.0.0.1:5000/annotations/59pNi9aCRTKhHGAXh8WVGL>,
+        <http://127.0.0.1:5000/annotations/fQtnzwU7jfAokxP5PfccfE>,
+        <http://127.0.0.1:5000/annotations/jqTjGFG9CmU2CPH3FFt9kG>,
+        <http://127.0.0.1:5000/annotations/oKiYzViHkrnncciyA4V9uU>,
+        <http://127.0.0.1:5000/annotations/tEKQdkRoeBwY4JV4zmmni2> .
+
