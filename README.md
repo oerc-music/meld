@@ -42,7 +42,7 @@ http://127.0.0.1:8080/Jam?session=$SESSION_URI
 Posting an annotation
 ---------------------
 
-Annotations can be posted directly to the session LDP container (Annotation Service). You will need to
+Annotations can be posted through the client user interface, or directly to the session LDP container (Annotation Service). You will need to
 add a "Content-Type" header with value "application/json" for the
 server to process them properly. To avoid race conditions and
 accidental overwriting, we use ETags (file hashes) which  need to be
