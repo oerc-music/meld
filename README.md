@@ -4,19 +4,19 @@ See ISMIR 2017 paper: https://ismir2017.smcnus.org/wp-content/uploads/2017/10/19
 
 
 Running MELD services
-=====================
+---------------------
 cd server
 pip install -r requirements.txt  #(or use a virtualenv)
 python manage.py runserver (default port: 5000)
 
 Running MELD client 
-===================
+-------------------
 cd client
 npm install
 npm start
 
 Creating a session 
-==================
+------------------
 
 To start a new session use the MELD session API as follows:
 
@@ -38,7 +38,8 @@ You can then load the session in the jam client by going to:
 http://127.0.0.1:8080/Jam?session=$SESSION_URI
 
 
-== Posting an annotation ==
+Posting an annotation
+---------------------
 
 Annotations can be posted directly to the session. You will need to
 add a "Content-Type" header with value "application/json" for the
@@ -54,4 +55,4 @@ the response
 it's 412 (PRECONDITION FAILED), the file changed before our POST got
 through - so repeat from step 1.
 
-Further documentation soon - in the meantime, feel free to contact @musicog (david.weigl@oerc.ox.ac.uk) for help.
+**Further documentation soon - in the meantime, feel free to contact @musicog (david.weigl@oerc.ox.ac.uk) for help.**
