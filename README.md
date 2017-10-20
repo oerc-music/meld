@@ -19,7 +19,7 @@ Running MELD client
 Creating a session 
 ------------------
 
-To start a new session use the MELD session API as follows:
+To start a new session use the MELD session service as follows:
 
 curl -H "Content-Type: application/json" -H "Slug: SessionName" -d '{
 "@type": ["mo:Performance", "ldp:BasicContainer"], "mo:performance_of":
@@ -42,7 +42,7 @@ http://127.0.0.1:8080/Jam?session=$SESSION_URI
 Posting an annotation
 ---------------------
 
-Annotations can be posted directly to the session. You will need to
+Annotations can be posted directly to the session LDP container (Annotation Service). You will need to
 add a "Content-Type" header with value "application/json" for the
 server to process them properly. To avoid race conditions and
 accidental overwriting, we use ETags (file hashes) which  need to be
