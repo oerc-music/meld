@@ -5,15 +5,15 @@ See ISMIR 2017 paper: https://ismir2017.smcnus.org/wp-content/uploads/2017/10/19
 
 Running MELD services
 ---------------------
-cd server
-pip install -r requirements.txt  #(or use a virtualenv)
-python manage.py runserver (default port: 5000)
+* cd server
+* pip install -r requirements.txt  #(or use a virtualenv)
+* python manage.py runserver (default port: 5000)
 
 Running MELD client 
 -------------------
-cd client
-npm install
-npm start
+* cd client
+* npm install
+* npm start
 
 Creating a session 
 ------------------
