@@ -1,0 +1,37 @@
+prefix meld: <http://meld.linkedmusic.org/terms/>
+prefix score: <http://127.0.0.1:5000/score/>
+prefix companion: <http://meld.linkedmusic.org/companion/>
+prefix compvocab: <http://meld.linkedmusic.org/companion/vocab/>
+prefix frbr: <http://purl.org/vocab/frbr/core#>
+prefix mo: <http://purl.org/ontology/mo/>
+prefix prov:    <http://www.w3.org/ns/prov#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+score:ClimbBaseCamp a mo:Score ;
+	mo:published_as <http://127.0.0.1:5000/mei/BaseCamp.mei> ;
+	frbr:part <http://127.0.0.1:5000/score/ClimbBaseCamp#Choice1>, 
+				<http://127.0.0.1:5000/score/ClimbBaseCamp#Choice2>,
+				<http://127.0.0.1:5000/score/ClimbBaseCamp#Choice3> .
+
+<http://127.0.0.1:5000/score/ClimbBaseCamp#Choice1> a frbr:Expression, meld:muzicode ;
+	frbr:partOf score:ClimbBaseCamp ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1:5000/mei/BaseCamp.mei#measure-000000198506034>
+	] .
+
+<http://127.0.0.1:5000/score/ClimbBaseCamp#Choice2> a frbr:Expression, meld:muzicode ; 
+	frbr:partOf score:ClimbBaseCamp ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1:5000/mei/BaseCamp.mei#measure-000000009508808>, 
+					<http://127.0.0.1:5000/mei/BaseCamp.mei#measure-000000096586158>
+	] .
+
+<http://127.0.0.1:5000/score/ClimbBaseCamp#Choice3> a frbr:Expression, meld:muzicode ;
+	frbr:partOf score:ClimbBaseCamp ;
+	frbr:embodiment [
+		a rdf:Bag, meld:MEIEmbodiment ;
+		rdfs:member <http://127.0.0.1:5000/mei/BaseCamp.mei#measure-000000077376722>
+	] .

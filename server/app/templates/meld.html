@@ -1,0 +1,21 @@
+<html>
+<head>
+    <title>MELD: Music Encoding & Linked Data</title>
+    <script src="{{ url_for('static', filename='verovio-toolkit.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-2.1.3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='meld.js') }}"></script>
+    <script src="{{ url_for('static', filename='contextMenu.js') }}"></script> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='meld.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='contextMenu.css') }}">
+</head>
+<body>
+    <script> var annotationGraph = {{ annotations | safe}} </script>
+    <div id="scorepane">
+        <div id="annotations"></div>
+        <div id="thescore"></div>
+    </div>
+    <div id="restpane">
+        <div id="controls"></div>
+        <div id="analysis"></div>
+    </div>
+</body>

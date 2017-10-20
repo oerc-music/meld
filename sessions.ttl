@@ -1,5 +1,0 @@
-@prefix ldp: <http://www.w3.org/ns/ldp#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-
-<> a ldp:Container, ldp:BasicContainer ;
-    dcterms:title "MELD sessions" .

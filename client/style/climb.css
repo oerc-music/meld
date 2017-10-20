@@ -1,0 +1,66 @@
+.score .meld-muzicode-identify { 
+	fill: red;
+	stroke: red;
+	color: red;
+}
+
+.score .meld-muzicode-choice { 
+	fill: slateblue !important;
+	stroke: slateblue !important;
+	color: slateblue !important;
+}
+
+.score .meld-muzicode-challenge-passed { 
+	fill: seagreen !important;
+	stroke: seagreen !important;
+	color: seagreen !important;
+}
+
+.score .meld-muzicode-disklavier-start { 
+	fill: orange !important;
+	stroke: orange !important;
+	color: orange !important;
+}
+
+.scorepane {
+    float: left;
+}
+
+#restpane { 
+    float:right;
+    font-size: 2.5em;
+    height: 100%;
+    overflow-y:auto;
+    width:45%;
+}
+
+#restpane #controls { 
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+#restpane #controls div { 
+    /*display:inline-block;*/
+    padding-top:.2em;
+    padding-bottom:.2em;
+    padding-right:.1em;
+    clear:both;
+    float:left;
+    border:1px solid black;
+
+}
+
+
+#prev{ 
+    cursor:pointer;
+}
+
+#next { 
+    cursor:pointer;
+}
+
+button { 
+    width: 80px;
+    margin-left: 10px;
+    margin-right: 25px;
+}
