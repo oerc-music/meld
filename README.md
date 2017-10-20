@@ -7,6 +7,7 @@ Running MELD services
 ---------------------
 * cd server
 * pip install -r requirements.txt  #(or use a virtualenv)
+* source set_env.sh
 * python manage.py runserver (default port: 5000)
 
 Running MELD client 
