@@ -753,7 +753,8 @@ def make_jsonld_response(graph, publicuri, status):
         },
         "@id": publicuri
     }
-    return make_response(json.dumps(jsonld.frame(raw_json, frame)), status)
+    return make_response(json.dumps(jsonld.frame(raw_json, frame)), status, {"Content-Type": "application/ld+json"})
+
 
 def ensureList(theObj, theKey):
     if not theKey in theObj:
