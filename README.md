@@ -12,6 +12,8 @@ Running MELD services
 
 Running MELD client 
 -------------------
+(seeAlso: http://github.com/oerc-music/meld-client)
+
 * git clone git@github.com:oerc-music/meld-client
 * cd meld-client
 * npm install
