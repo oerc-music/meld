@@ -5,12 +5,11 @@ from rdflib import Graph, plugin, URIRef, Literal, BNode
 from rdflib.parser import Parser
 from rdflib.serializer import Serializer
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print "Please invoke with: python generate_climb_scores.py /path/to/climb-dump.json http://uri/of/score/dir /filepath/of/score/dir/"
+    if len(sys.argv) != 3:
+        print "Please invoke with: python generate_climb_scores.py /path/to/climb-dump.json /filepath/of/score/dir/"
         sys.exit()
     inputfile = sys.argv[1]
-    scoreuri= sys.argv[2]
-    scoredir = sys.argv[3]
+    scoredir = sys.argv[2]
 
     context = json.loads('''
         {
@@ -20,15 +19,14 @@ if __name__ == "__main__":
             "mo": "http://purl.org/ontology/mo/",
             "meld": "http://meld.linkedmusic.org/terms/",
             "climb": "http://meld.linkedmusic.org/climb/terms/",
-            "mc": "http://meld.linkedmusic.org/climb/muzicodes/",
-            "mctype": "http://meld.linkedmusic.org/climb/muzicodeTypes/",
+            "mc": "http://meld.linkedmusic.org/climb/muzicodeTypes/",
             "meielements": "frbr:embodiment",
             "mcs": "frbr:part",
             "stage": "@id",
             "app": "rdfs:label",
             "mo": "http://purl.org/ontology/mo/",
             "type": {
-                "@id": "mctype:type",
+                "@id": "mc:type",
                 "@type": "@id"
             },
             "next": {
@@ -40,14 +38,13 @@ if __name__ == "__main__":
               "@type": "@id"
             },
             "meifile": {
-              "@id": "mo:publication_of",
+              "@id": "mo:published_as",
               "@type": "@id"
             }
         }
     ''')
 
     scoredir = os.path.join(scoredir, '') # ensure trailing slash
-    scoreuri= os.path.join(scoreuri, '') # ensure trailing slash
     context["mei"] = os.path.join(os.getenv("MELD_MEI_URI", "http://meld.linkedmusic.org/mei/"), '')
     context["climbStage"] = os.path.join(os.getenv("MELD_SCORE_URI", "http://meld.linkedmusic.org/climb/stage/"), '')
     
@@ -66,11 +63,12 @@ if __name__ == "__main__":
         stage["meifile"] = "mei:" + stage["meifile"]
         # work through muzicode definitions
         for mc in stage["mcs"]:
-            # prefix "mc:"
-            mc["@id"] = "mc:" + mc["name"]
+            mc["frbr:partOf"] = stage["stage"],
+            # prefix stage URI to make the muzicode a fragment of it
+            mc["@id"] = stage["stage"] + "#" + mc["name"]
             mc["@type"] = ["meld:Muzicode", "frbr:Expression"]
-            # prefix "mctype:" // nb, this is a muzicode type, not an rdfs:type!!!
-            mc["type"] = "mctype:" + mc["type"]
+            # prefix "mc:" // nb, this is a muzicode type, not an rdfs:type!!!
+            mc["type"] = "mc:" + mc["type"].capitalize()
             # prefix mei URI for mei elements
             mc["meielements"] = map(lambda x: stage["meifile"] + x, mc["meielements"])
             mc["meielements"] = {
