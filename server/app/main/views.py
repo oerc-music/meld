@@ -376,7 +376,14 @@ def createSession():
     contentType = request.headers.get('Content-Type')
     sessionsUri = baseuri + "/sessions/"
     slug = request.headers.get('Slug') 
+    req_etags = request.headers.get('If-None-Match')
+    file_etag = calculateETag("{0}/sessions.ttl".format(basedir))
     #FIXME do validation on slug
+    if not req_etags:
+        print "If-None-Match (etag) missing"
+        abort(400) # must include an etag when attempting to join session
+    if file_etag not in req_etags:
+        return abort(412) # precondition failed - client working with an outdated sessions list
     if slug:
         if os.path.isfile("{0}/sessions/{1}.ttl".format(basedir, slug)):
             pubId = slug + "_" + uuid()
@@ -415,8 +422,18 @@ def createSession():
     # add in the created timestamp for this session
     g.add((URIRef(sessionsUri+pubId), URIRef("http://purl.org/dc/terms/created"), Literal(datetime.now().isoformat())))
     # g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/createSessionAnnotation"), URIRef(sessionsUri+pubId)))
-    with open("{0}/sessions.ttl".format(basedir), "a") as sessionsContainer:
+    
+    # now make sure the sessions listing hasn't changed (ETag)
+    tmpFile = "{0}/tmp/{1}".format(basedir, uuid())
+    shutil.copy("{0}/sessions.ttl".format(basedir), tmpFile)
+    with open(tmpFile, "a") as sessionsContainer:
         sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
+    new_etag = calculateETag("{0}/sessions.ttl".format(basedir))
+    print "OLD: {0} NEW: {1}".format(file_etag, new_etag)
+    if file_etag != new_etag:
+        abort(412) # precondition failed - file changed while we were handling the request!
+    # atomically overwrite old session file with new tmp file
+    os.rename(tmpFile, "{0}/sessions.ttl".format(basedir))
     with open("{0}/sessions/{1}.ttl".format(basedir, pubId), "w") as sessionFile:
         sessionFile.write(g.serialize(format="text/turtle"));
     if contentType == "application/ld+json" or contentType == "application/json":
