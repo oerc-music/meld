@@ -443,6 +443,63 @@ def createSession():
     r.headers.add("Location", sessionsUri + pubId)
     return r
 
+@main.route("/sessions/bypass", methods=["POST"])
+# add a new session to the LDP container
+def createSessionBypassEtag():
+    contentType = request.headers.get('Content-Type')
+    sessionsUri = baseuri + "/sessions/"
+    slug = request.headers.get('Slug') 
+    #FIXME do validation on slug
+    if slug:
+        if os.path.isfile("{0}/sessions/{1}.ttl".format(basedir, slug)):
+            pubId = slug + "_" + uuid()
+        else:
+            pubId = slug 
+    else:
+        pubId = uuid() 
+
+    try: 
+        if contentType == "application/json" or contentType == "application/ld+json":
+            context = json.loads('''
+              {
+                "popRoles": "http://pop.linkedmusic.org/roles/", 
+                "mo": "http://purl.org/ontology/mo/", 
+                "ldp": "http://www.w3.org/ns/ldp#", 
+                "mp": "http://id.loc.gov/authorities/performanceMediums/", 
+                "oa": "http://www.w3.org/ns/oa#",
+                "dct": "http://purl.org/dc/terms/",
+                "frbr": "http://purl.org/vocab/frbr/core#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "meld": "http://meld.linkedmusic.org/terms/",
+                "motivation": "http://meld.linkedmusic.org/motivation/"
+              }
+            ''')
+            sessionjson = json.loads(request.data)
+            sessionjson["@context"] = context
+            sessionjson["@id"] = sessionsUri + pubId
+            g = Graph().parse(data=json.dumps(sessionjson), format="json-ld")
+        else:
+            g = Graph().parse(publicID=sessionsUri + pubId, data=request.data, format=contentType)
+    except Exception as e: 
+        print e
+        abort(400)
+    # add in links to this session's "join session" and "create session annotation"(??) URIs 
+    g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/joinSession"), URIRef(sessionsUri+pubId+"/join")))
+    # add in the created timestamp for this session
+    g.add((URIRef(sessionsUri+pubId), URIRef("http://purl.org/dc/terms/created"), Literal(datetime.now().isoformat())))
+    # g.add((URIRef(sessionsUri+pubId), URIRef("http://meld.linkedmusic.org/terms/createSessionAnnotation"), URIRef(sessionsUri+pubId)))
+    
+    with open("{0}/sessions.ttl".format(basedir), "a") as sessionsContainer:
+        sessionsContainer.write("\n<> ldp:contains <{0}> .".format(sessionsUri + pubId))
+    with open("{0}/sessions/{1}.ttl".format(basedir, pubId), "w") as sessionFile:
+        sessionFile.write(g.serialize(format="text/turtle"));
+    if contentType == "application/ld+json" or contentType == "application/json":
+        r = make_jsonld_response(g, sessionsUri + pubId, 201)
+    else: 
+        r = make_response(g.serialize(format=contentType), 201)
+    r.headers.add("Location", sessionsUri + pubId)
+    return r
+
 
 @main.route("/score/<scoreFile>", methods=["GET"])
 # return the score triples
@@ -641,6 +698,92 @@ def createSessionAnnotation(sessionid):
     r = make_response("",201)
     r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
     r.headers.add("ETag", file_etag)
+    return r
+
+@main.route("/sessions/bypass/<sessionid>", methods=["POST"])
+#TODO refactor (boilerplate duplication with joinSession)
+def createSessionAnnotationBypassEtag(sessionid):
+    contentType = request.headers.get('Content-Type')
+    sessionFile = "{0}/sessions/{1}.ttl".format(basedir, sessionid)
+    with open(sessionFile) as session:
+        # construct graph for this session
+        g = Graph().parse(session, publicID="{0}/sessions/{1}".format(baseuri,sessionid), format="turtle")
+    try:
+        annoid = "{0}/annotations/{1}".format(baseuri, uuid())
+        if contentType == 'application/ld+json' or contentType == 'application/json':
+            context = json.loads('''
+              {
+                "popRoles": "http://pop.linkedmusic.org/roles/", 
+                "mo": "http://purl.org/ontology/mo/", 
+                "ldp": "http://www.w3.org/ns/ldp#", 
+                "mp": "http://id.loc.gov/authorities/performanceMediums/", 
+                "oa": "http://www.w3.org/ns/oa#",
+                "dct": "http://purl.org/dc/terms/",
+                "meld": "http://meld.linkedmusic.org/terms/",
+                "motivation": "http://meld.linkedmusic.org/motivation/"
+              }
+            ''')
+            annojson = json.loads(request.data)
+            annojson["@context"] = context
+            annojson["@id"] = annoid
+            annojson["dct:created"] = datetime.now().isoformat()
+            h = Graph().parse(data=json.dumps(annojson), format="json-ld")
+        else:
+            h = Graph().parse(data=request.data, publicID=annoid, format="turtle")
+    except Exception as e: 
+        print e
+        abort(400) # bad request - can't interpret request data
+    # link annotation graph into session graph
+    g.add((
+        URIRef("{0}/sessions/{1}".format(baseuri, sessionid)),
+        URIRef("http://www.w3.org/ns/ldp#contains"),
+        URIRef(annoid)
+    ))
+    # and merge them
+    g = g + h
+    # now add references to the new annotation into each RELEVANT sessionPerformerContext
+    # where RELEVANT == is annotation audience. If no audience specified, relevant to ALL.
+    
+    audienceGenerator = g.triples(( 
+        URIRef(annoid),
+        URIRef("http://schema.org/audience"),
+        None
+    ))
+
+    #TODO figure out why removing this for loop breaks performer session context attribution
+    for (s, p, o) in audienceGenerator:
+        print s, " ", p, " ", o
+
+    # if there are audiences...
+    if peek(audienceGenerator):
+        for _s, _p, audience in audienceGenerator:
+            # find the audience performer roles...
+            for __s, __p, role in g.triples((
+                audience,
+                URIRef("http://meld.linkedmusic.org/terms/performerRole"),
+                None
+            )):
+                # reference the annotation from any relevant sessionPerformerContext
+                for context, ___p, ___o in g.triples((
+                    None, 
+                    URIRef("http://meld.linkedmusic.org/terms/performerRole"),
+                    role
+                )):
+                    g = trackSessionPerformerAnnotationState(g, context, annoid)
+    else:
+        # otherwise, do it for every sessionPerformerContext
+        for context, _p, _o in g.triples((
+            None, 
+            URIRef("http://meld.linkedmusic.org/terms/performerRole"),
+            None
+        )):
+            g = trackSessionPerformerAnnotationState(g, context, annoid)
+    with open(sessionFile, 'w') as session:
+        session.write(g.serialize(format="turtle"))
+    # check etag of session file one more time...
+    r = make_response("",201)
+    r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
+    r.headers.add("ETag", calculateETag(sessionFile))
     return r
 
 
