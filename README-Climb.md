@@ -18,7 +18,7 @@ Running MELD services
 ---------------------
 * cd server
 * source set_env.sh
-* python manage.py runserver #(default port: 5000)
+* python manage.py runserver --threaded #(default port: 5000)
 
 Running MELD client 
 -------------------
