@@ -6,7 +6,7 @@ from rdflib.parser import Parser
 from rdflib.serializer import Serializer
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print "Please invoke with: python generate_climb_scores.py /path/to/climb-dump.json /filepath/of/score/dir/"
+        print "Please invoke with: python generate_climb_scores.py /path/to/mkGameEngine-meld.json /filepath/of/score/dir/"
         sys.exit()
     inputfile = sys.argv[1]
     scoredir = sys.argv[2]
