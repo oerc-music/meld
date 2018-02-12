@@ -699,7 +699,7 @@ def createSessionAnnotation(sessionid):
     # atomically overwrite old session file with new tmp file
     os.rename(tmpFile, sessionFile)
     r = make_response("",201)
-    r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
+    r.headers.add("Location", annoid)
     r.headers.add("ETag", file_etag)
     return r
 
@@ -796,7 +796,7 @@ def createSessionAnnotationBypassEtag(sessionid):
         # while loop will iterate again if file_etag != new_etag
         # (so if the file's changed underneath us, we just retry until it sticks)
     r = make_response("",201)
-    r.headers.add("Location", "{0}/sessions/{1}".format(baseuri, sessionid))
+    r.headers.add("Location", annoid)
     r.headers.add("ETag", calculateETag(sessionFile))
     return r
 
