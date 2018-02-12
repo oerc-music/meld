@@ -635,8 +635,9 @@ def createSessionAnnotation(sessionid):
               }
             ''')
             annojson = json.loads(request.data)
-            annojson["@context"] = context
+            annoid = annojson["@id"] if "@id" in annojson else  "{0}/annotations/{1}".format(baseuri, uuid())
             annojson["@id"] = annoid
+            annojson["@context"] = context
             annojson["dct:created"] = datetime.now().isoformat()
             h = Graph().parse(data=json.dumps(annojson), format="json-ld")
         else:
@@ -730,6 +731,7 @@ def createSessionAnnotationBypassEtag(sessionid):
                   }
                 ''')
                 annojson = json.loads(request.data)
+                annoid = annojson["@id"] if "@id" in annojson else  "{0}/annotations/{1}".format(baseuri, uuid())
                 annojson["@context"] = context
                 annojson["@id"] = annoid
                 annojson["dct:created"] = datetime.now().isoformat()
