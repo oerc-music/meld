@@ -4,7 +4,7 @@
 
 MELD: Music Encoding and Linked Data
 ====================================
-See ISMIR 2017 paper: https://ismir2017.smcnus.org/wp-content/uploads/2017/10/190_Paper.pdf
+See ISMIR 2017 paper: https://ora.ox.ac.uk/objects/uuid:945287f6-5dd3-4424-940c-b919b8ad2768
 
 
 Running MELD services
