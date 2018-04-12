@@ -1,4 +1,4 @@
-![alt text](meld-overview.png)
+![MELD Overview](meld-overview.png)
 
 
 
