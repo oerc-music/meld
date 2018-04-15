@@ -1,9 +1,0 @@
-PREFIX meldterm: <http://meld.linkedmusic.org/terms/>
-PREFIX mp: <http://id.loc.gov/authorities/performanceMediums/>
-PREFIX mo: <http://purl.org/ontology/mo/>
-PREFIX popRole: <http://pop.linkedmusic.org/roles/>
-
-<> a meldterm:SessionPerformerContext; 
-	mo:performer <http://meld.linkedmusic.org/performers/TestClimber> ;
-	meldterm:performerRole popRole:Lead ;
-	mo:primary_instrument mp:mp2013015247 .
