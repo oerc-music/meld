@@ -12,11 +12,11 @@ For a detailed summary, please refer to our ISMIR 2017 paper: https://ora.ox.ac.
 
 MELD Client Core
 ----------------
-If you are looking to develop a new MELD application, you will want to have a look at the meld-clients-core repository at [https://github.com/oerc-music/meld-clients-core].
+If you are looking to develop a new MELD application, you will want to have a look at the meld-clients-core repository at [oerc-music/meld-clients-core](https://github.com/oerc-music/meld-clients-core).
 
 MELD Web Services
 -----------------
-A basic reference implementation of the MELD annotation and session web services is available at the meld-web-services repository at [https://github.com/oerc-music/meld-web-services].
+A basic reference implementation of the MELD annotation and session web services is available at the meld-web-services repository at [oerc-music/meld-web-services](https://github.com/oerc-music/meld-web-services).
 
 ![MELD Overview](meld-overview.png)
 
