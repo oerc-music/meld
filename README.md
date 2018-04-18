@@ -10,8 +10,6 @@ The MELD implementation is split across a number of different repositories:
 
 ![MELD Overview](meld-overview.png)
 
-![MELD Overview -- animation](meld-overview.svg)
-
 
 
 MELD Web Services
