@@ -5,9 +5,9 @@ An introduction to MELD can be found on the [MELD website](https://meld.web.ox.a
 
 The MELD implementation is split across a number of different repositories:
 
-* [oerc-music/meld-web-services](https://github.com/oerc-music/meld-web-services), a reference implementation of the session and annotation services providing a server-side implementation of the MELD framework.
+* [oerc-music/meld-web-services](https://github.com/oerc-music/meld-web-services), a reference implementation of the server-side session and annotation services for MELD 1.0. For MELD 2.0 onwards we recommend the use of Solid Pods instead (see below).
 * [oerc-music/meld-clients-core](https://github.com/oerc-music/meld-clients-core), a React.js library providing functionalities common to MELD applications, including reusable web page elements, graph traversal actions, rendering and interaction handlers, and state reducers.
-* Repositories for several MELD apps.
+* Repositories for [several MELD apps](https://meld.web.ox.ac.uk/apps).
 
 
 ![MELD Overview](meld-overview.png)
