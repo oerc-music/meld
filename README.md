@@ -16,7 +16,7 @@ The MELD implementation is split across a number of different repositories:
 
 MELD Web Services
 -----------------
-Starting from MELD 2.0, we recommend the use of a Solid Pods for managing sessions and storing annotations. Any Solid Pod provider should be compatible with MELD; the MELD team recommend [node-solid-server](https://github.com/solid/node-solid-server) for local deployments. See [music-scholars-annotator](https://trompamusic.github.io/music-scholars-annotator/) for an example MELD app which uses Solid Pods.
+Starting from MELD 2.0, we recommend the use of Solid Pods for managing sessions and storing annotations. Any Solid Pod provider should be compatible with MELD; the MELD team recommend [node-solid-server](https://github.com/solid/node-solid-server) for local deployments. See [music-scholars-annotator](https://trompamusic.github.io/music-scholars-annotator/) for an example MELD app which uses Solid Pods.
 
 Apps conceived prior to MELD 2.0 may still be using a bespoke partial implementation of LDP provided directly by meld-web-services. This reference implementation of the MELD 1.0 annotation and session web services is available at [oerc-music/meld-web-services](https://github.com/oerc-music/meld-web-services). To install: 
 
