@@ -33,7 +33,7 @@ This code depends on a number of Python modules, including Flask (web server), a
 
 MELD Clients Core
 -----------------
-A React.js library providing common MELD web page elements, graph traversal actions, rendering and interaction handlers, and state reducers. To include this in your MELD app, add the following entry to the dependencies in your application's package.json file:
+[oerc-music/meld-clients-core](https://github.com/oerc-music/meld-clients-core), a React.js library providing common MELD web page elements, graph traversal actions, rendering and interaction handlers, and state reducers. To include this in your MELD app, add the following entry to the dependencies in your application's package.json file:
 
 ```
 "meld-clients-core": "oerc-music/meld-clients-core"
